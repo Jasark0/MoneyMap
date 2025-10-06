@@ -34,6 +34,9 @@ struct ContentView: View {
                     }
                 }
             }
+            VStack{
+                Text("Hello World!")
+            }
         } detail: {
             Text("Select an item")
         }
