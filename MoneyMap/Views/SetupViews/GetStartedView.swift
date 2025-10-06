@@ -9,7 +9,25 @@ import SwiftUI
 
 struct GetStartedView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack{
+            VStack{
+                Image("MoneyMapLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 400, height: 400)
+                NavigationLink(destination: SignUpView()){
+                    Text("Get Started  >>>")
+                        .font(.system(size: 18))
+                        .padding(.horizontal, 60)
+                        .padding(.vertical, 20)	
+                        .foregroundColor(.white)
+                        .background(Color("Oxford Blue"))
+                        .cornerRadius(15)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.white)
+        }
     }
 }
 
