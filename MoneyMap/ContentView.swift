@@ -36,6 +36,7 @@ struct ContentView: View {
             }
             VStack{
                 Text("Hello World!")
+                Text("Testing another commit!")
             }
         } detail: {
             Text("Select an item")
