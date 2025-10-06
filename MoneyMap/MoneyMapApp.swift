@@ -27,6 +27,6 @@ struct MoneyMapApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer)
     }
 }
+
