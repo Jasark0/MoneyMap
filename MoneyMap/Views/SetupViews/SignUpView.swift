@@ -21,55 +21,74 @@ struct SignUpView: View{
 
     var body: some View{
         NavigationStack{
-            ScrollView{
-                VStack{
-                    Text("Let's get you set up")
+            ZStack{
+                ScrollView{
+                    VStack{
+                        Text("Let's get you set up")
+                            .font(.system(size: 28))
+                            .padding(.top, 15)
+                            .padding(.bottom, 30)
                         
-                    
-                    VStack(spacing: 18){
-                        InputView(title: "First Name", text: $firstName)
-                        InputView(title: "Last Name", text: $lastName)
-                        InputView(title: "Username", text: $username)
-                        InputView(title: "Email", text: $email)
-                        SecureInputView(title: "Password", text: $password)
-                        SecureInputView(title: "Confirm Password", text: $confirmPassword)
+                        
+                        VStack(spacing: 25){
+                            InputView(title: "First Name", text: $firstName)
+                            InputView(title: "Last Name", text: $lastName)
+                            InputView(title: "Username", text: $username)
+                            InputView(title: "Email", text: $email)
+                            SecureInputView(title: "Password", text: $password)
+                            SecureInputView(title: "Confirm Password", text: $confirmPassword)
+                        }
+                        .padding(.horizontal, 30)
+                        
+                        if (showPasswordWarning){
+                            Text("Passwords do not match.")
+                                .foregroundColor(.red)
+                                .font(.subheadline)
+                                .padding(.top, 5)
+                        }
+                        
+                        Button(action: {
+                            if (password != confirmPassword){
+                                showPasswordWarning = true
+                            }
+                            else{
+                                showPasswordWarning = false
+                                navigateToMain = true
+                            }
+                        }) {
+                            Text("Sign Up")
+                                .font(.system(size: 18))
+                                .padding(.horizontal, 100)
+                                .padding(.vertical, 20)
+                                .foregroundColor(.white)
+                                .background(Color("Oxford Blue"))
+                                .cornerRadius(15)
+                        }
+                        .padding(.top, 20)
+                        
+                        Spacer()
                     }
-                    .padding(.horizontal, 30)
-                    
-                    if (showPasswordWarning){
-                        Text("Passwords do not match.")
-                            .foregroundColor(.red)
-                            .font(.subheadline)
-                            .padding(.top, 5)
+                    .frame(maxWidth: .infinity)
+                    .navigationDestination(isPresented: $navigateToMain) {
+                        MainView()
                     }
-                    
-                    Button(action: {
-                        if (password != confirmPassword){
-                            showPasswordWarning = true
-                        }
-                        else{
-                            showPasswordWarning = false
-                            navigateToMain = true
-                        }
-                    }) {
-                        Text("Sign Up")
-                            .font(.system(size: 18))
-                            .padding(.horizontal, 60)
-                            .padding(.vertical, 20)
-                            .foregroundColor(.white)
-                            .background(Color("Oxford Blue"))
-                            .cornerRadius(15)
-                        }
-                    .padding(.top, 20)
-                                        
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
-                .navigationDestination(isPresented: $navigateToMain) {
-                    MainView()
                 }
             }
+            
+            
+            HStack{
+                Text("Already have an account?")
+                    .foregroundColor(.gray)
+                    
+                NavigationLink(destination: SignInView()){
+                    Text("Sign In")
+                        .foregroundColor(Color("Oxford Blue"))
+                        .fontWeight(.semibold)
+                }
+            }
+            .padding(.top, 15)
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 

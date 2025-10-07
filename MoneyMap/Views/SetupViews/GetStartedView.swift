@@ -18,7 +18,7 @@ struct GetStartedView: View {
                 NavigationLink(destination: SignUpView()){
                     Text("Get Started  >>>")
                         .font(.system(size: 18))
-                        .padding(.horizontal, 60)
+                        .padding(.horizontal, 100)
                         .padding(.vertical, 20)	
                         .foregroundColor(.white)
                         .background(Color("Oxford Blue"))
