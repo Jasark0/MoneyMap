@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct SignInView: View {
     @State private var username = ""
     @State private var password = ""
     
+    @State private var errorMessage: String? = nil
     @State private var navigateToMain = false
+    
     
     var body: some View {
         NavigationStack{
@@ -32,8 +35,17 @@ struct SignInView: View {
                         
                         Spacer()
                         
+                        if let error = errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.subheadline)
+                                .padding(.top, 5)
+                        }
+                        
                         Button(action: {
-                            navigateToMain = true;
+                            Task{
+                                //await signIn()
+                            }
                         }) {
                             Text("Sign In")
                                 .font(.system(size: 18))

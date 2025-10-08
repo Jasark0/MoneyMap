@@ -18,6 +18,7 @@ struct SignUpView: View{
     
     //Check if password is identical to confirmPassword
     @State private var showPasswordWarning = false
+    @State private var errorMessage: String? = nil
     @State private var navigateToMain = false
     
     struct Profile: Encodable {
@@ -26,13 +27,13 @@ struct SignUpView: View{
         let first_name: String
         let last_name: String
     }
-
+    
     func signUp() async {
         do{
+            errorMessage = nil
+            
             let response = try await supabase.auth.signUp(email: email, password: password)
             let userId = response.user.id
-            
-            print("User created successfully: \(response.user.email ?? "Unknown email")")
             
             let profile = Profile(
                 id: userId.uuidString,
@@ -42,13 +43,23 @@ struct SignUpView: View{
             )
             
             try await supabase.from("profiles").insert(profile).execute()
-            
-            print("Profile inserted successfully for user \(username)")
-            
+    
             navigateToMain = true
         }
         catch{
-            print("Error during signup: \(error.localizedDescription)")
+            let errStr = error.localizedDescription.lowercased()
+            
+            if errStr.contains("duplicate"){
+                if (errStr.contains("profiles_pkey")){
+                    errorMessage = "Email already exists."
+                }
+                else if(errStr.contains("profiles_username_key")){
+                    errorMessage = "Username already exists."
+                }
+            }
+            else {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 
@@ -80,6 +91,14 @@ struct SignUpView: View{
                                 .font(.subheadline)
                                 .padding(.top, 5)
                         }
+                        
+                        if let error = errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.subheadline)
+                                .padding(.top, 5)
+                        }
+
                         
                         Button(action: {
                             if (password != confirmPassword){
