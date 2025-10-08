@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct SignUpView: View{
     @State private var firstName = ""
@@ -18,6 +19,39 @@ struct SignUpView: View{
     //Check if password is identical to confirmPassword
     @State private var showPasswordWarning = false
     @State private var navigateToMain = false
+    
+    struct Profile: Encodable {
+        let id: String
+        let username: String
+        let first_name: String
+        let last_name: String
+    }
+
+    func signUp() async {
+        do{
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            let userId = response.user.id
+            
+            print("User created successfully: \(response.user.email ?? "Unknown email")")
+            
+            let profile = Profile(
+                id: userId.uuidString,
+                username: username,
+                first_name: firstName,
+                last_name: lastName
+            )
+            
+            try await supabase.from("profiles").insert(profile).execute()
+            
+            print("Profile inserted successfully for user \(username)")
+            
+            navigateToMain = true
+        }
+        catch{
+            print("Error during signup: \(error.localizedDescription)")
+        }
+    }
+
 
     var body: some View{
         NavigationStack{
@@ -53,7 +87,9 @@ struct SignUpView: View{
                             }
                             else{
                                 showPasswordWarning = false
-                                navigateToMain = true
+                                Task{
+                                    await signUp()
+                                }
                             }
                         }) {
                             Text("Sign Up")
@@ -74,7 +110,6 @@ struct SignUpView: View{
                     }
                 }
             }
-            
             
             HStack{
                 Text("Already have an account?")
