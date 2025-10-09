@@ -15,7 +15,69 @@ struct SignInView: View {
     @State private var errorMessage: String? = nil
     @State private var navigateToMain = false
     
+    struct Profile: Decodable {
+        let id: UUID
+    }
     
+    struct EmailProfile: Decodable {
+        let email: String
+    }
+
+    func getEmail(for id: UUID) async -> String?{
+        do {
+            let emailData: [EmailProfile] = try await supabase
+                .from("profile_emails")
+                .select("email")
+                .eq("id", value: id)
+                .execute()
+                .value
+            
+            if let emailProfile = emailData.first {
+                return emailProfile.email
+            }
+            else {
+                print("No email found for this ID")
+                return nil
+            }
+        }
+        catch {
+            print("Error fetching email: \(error)")
+            return nil
+        }
+    }
+    
+    func signIn() async {
+        do {
+            let profiles: [Profile] = try await supabase
+                .from("profiles")
+                .select("id")
+                .eq("username", value: username)
+                .execute()
+                .value
+            
+            if let profile = profiles.first {
+                if let email = await getEmail(for: profile.id) {
+                    try await supabase.auth.signIn(
+                        email: email,
+                        password: password
+                    )
+                    
+                    navigateToMain = true
+                }
+                else {
+                    print("Could not retrieve email for user.")
+                }
+            }
+            else {
+                print("No profile found for username \(username)")
+            }
+        }
+        catch {
+            print("Error during sign-in: \(error)")
+        }
+    }
+
+
     var body: some View {
         NavigationStack{
             ZStack{
@@ -44,7 +106,7 @@ struct SignInView: View {
                         
                         Button(action: {
                             Task{
-                                //await signIn()
+                                await signIn()
                             }
                         }) {
                             Text("Sign In")
