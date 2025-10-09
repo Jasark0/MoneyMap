@@ -9,6 +9,8 @@ import SwiftUI
 import Supabase
 
 struct SignInView: View {
+    @EnvironmentObject var sessionManager: SessionManager
+    
     @State private var username = ""
     @State private var password = ""
     
@@ -54,13 +56,17 @@ struct SignInView: View {
                 .eq("username", value: username)
                 .execute()
                 .value
-            
+        
             if let profile = profiles.first {
                 if let email = await getEmail(for: profile.id) {
                     try await supabase.auth.signIn(
                         email: email,
                         password: password
                     )
+                    
+                    // Store user ID in session manager
+                    sessionManager.setUser(id: profile.id)
+
                     
                     navigateToMain = true
                 }
@@ -147,6 +153,11 @@ struct SignInView: View {
     }
 }
 
+//PREVIEW NOT WORKING!
 #Preview {
-    SignInView()
+    NavigationStack {
+        SignInView()
+    }
+    .environmentObject(SessionManager.preview)
 }
+

@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct SetupView: View {
+    @EnvironmentObject var sessionManager: SessionManager
+    
     @State private var income: Double = 0
     @State private var goal: Double = 0
     @State private var needs: Double = 50
@@ -17,6 +20,40 @@ struct SetupView: View {
     @State private var showPercentageWarning = false
     @State private var errorMessage: String? = nil
     @State private var navigateToMain = false
+    
+    struct Profile: Encodable{
+        let id: String
+        let income: Double
+        let goal: Double
+        let needs: Double
+        let wants: Double
+        let savings: Double
+    }
+    
+    func setUp() async {
+        do {
+            errorMessage = nil
+            
+            let profile = Profile(
+                id: sessionManager.userId!.uuidString,
+                income: income,
+                goal: goal,
+                needs: needs,
+                wants: wants,
+                savings: savings,
+            )
+            
+            try await supabase
+                .from("income")
+                .insert(profile)
+                .execute()
+            
+            navigateToMain = true
+        }
+        catch{
+            errorMessage = error.localizedDescription
+        }
+    }
     
     var body: some View {
         NavigationStack{
@@ -41,8 +78,17 @@ struct SetupView: View {
                     }
                     .padding(.horizontal, 30)
                         
+                    if let error = errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.subheadline)
+                            .padding(.top, 5)
+                    }
+                    
                     Button(action: {
-                        navigateToMain = true
+                        Task {
+                            await setUp()
+                        }
                     }) {
                         Text("Finish")
                             .font(.system(size: 18))
@@ -66,6 +112,11 @@ struct SetupView: View {
     }
 }
 
+//PREVIEW NOT WORKING!
 #Preview {
-    SetupView()
+    NavigationStack {
+        SetupView()
+    }
+    .environmentObject(SessionManager.preview)
 }
+

@@ -9,6 +9,8 @@ import SwiftUI
 import Supabase
 
 struct SignUpView: View{
+    @EnvironmentObject var sessionManager: SessionManager
+    
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var username = ""
@@ -35,6 +37,9 @@ struct SignUpView: View{
             let response = try await supabase.auth.signUp(email: email, password: password)
             let userId = response.user.id
             
+            //store userId in sessionManager to be accessed in all views
+            sessionManager.setUser(id: userId)
+            
             let profile = Profile(
                 id: userId.uuidString,
                 username: username,
@@ -42,7 +47,10 @@ struct SignUpView: View{
                 last_name: lastName
             )
             
-            try await supabase.from("profiles").insert(profile).execute()
+            try await supabase
+                .from("profiles")
+                .insert(profile)
+                .execute()
     
             navigateToSetup = true
         }
@@ -99,7 +107,6 @@ struct SignUpView: View{
                                 .padding(.top, 5)
                         }
 
-                        
                         Button(action: {
                             if (password != confirmPassword){
                                 showPasswordWarning = true
@@ -146,7 +153,14 @@ struct SignUpView: View{
     }
 }
 
+//PREVIEW NOT WORKING!
 #Preview {
-    SignUpView()
+    NavigationStack {
+        SignUpView()
+    }
+    .environmentObject(SessionManager.preview)
 }
+
+
+
 
