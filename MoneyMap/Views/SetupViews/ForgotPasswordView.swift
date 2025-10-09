@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ForgotPasswordView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("Forgot Password Page")
+            .font(.system(size: 25))
     }
 }
 

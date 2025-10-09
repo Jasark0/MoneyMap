@@ -19,7 +19,7 @@ struct SignUpView: View{
     //Check if password is identical to confirmPassword
     @State private var showPasswordWarning = false
     @State private var errorMessage: String? = nil
-    @State private var navigateToMain = false
+    @State private var navigateToSetup = false
     
     struct Profile: Encodable {
         let id: String
@@ -44,7 +44,7 @@ struct SignUpView: View{
             
             try await supabase.from("profiles").insert(profile).execute()
     
-            navigateToMain = true
+            navigateToSetup = true
         }
         catch{
             let errStr = error.localizedDescription.lowercased()
@@ -124,8 +124,8 @@ struct SignUpView: View{
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
-                    .navigationDestination(isPresented: $navigateToMain) {
-                        MainView()
+                    .navigationDestination(isPresented: $navigateToSetup) {
+                        SetupView()
                     }
                 }
             }

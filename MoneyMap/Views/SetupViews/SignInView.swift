@@ -118,6 +118,11 @@ struct SignInView: View {
                                 .cornerRadius(15)
                         }
                         .padding(.top, 20)
+                        
+                        NavigationLink(destination: ForgotPasswordView()){
+                            Text("Forgot password?")
+                                .foregroundColor(Color("Oxford Blue"))
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .navigationDestination(isPresented: $navigateToMain) {
