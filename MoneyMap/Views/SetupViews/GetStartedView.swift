@@ -14,11 +14,11 @@ struct GetStartedView: View {
                 Image("MoneyMapLogo")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 400, height: 400)
+                    .frame(width: 350, height: 350)
                 NavigationLink(destination: SignUpView()){
                     Text("Get Started  >>>")
                         .font(.system(size: 18))
-                        .padding(.horizontal, 60)
+                        .padding(.horizontal, 100)
                         .padding(.vertical, 20)	
                         .foregroundColor(.white)
                         .background(Color("Oxford Blue"))

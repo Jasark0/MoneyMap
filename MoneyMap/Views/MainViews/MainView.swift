@@ -9,8 +9,11 @@ import SwiftUI
 
 struct MainView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("Welcome to main page!")
+            .font(.system(size: 50))
+            .navigationBarBackButtonHidden(true)
     }
+    
 }
 
 #Preview {
