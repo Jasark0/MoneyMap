@@ -12,7 +12,7 @@ import Combine
 
 @MainActor
 class SessionManager: ObservableObject {
-    @Published var userId: UUID?
+    @Published var userId: UUID? = nil
     
     func setUser(id: UUID) {
         self.userId = id

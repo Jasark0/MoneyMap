@@ -50,6 +50,8 @@ struct SignInView: View {
     
     func signIn() async {
         do {
+            errorMessage = nil
+            
             let profiles: [Profile] = try await supabase
                 .from("profiles")
                 .select("id")

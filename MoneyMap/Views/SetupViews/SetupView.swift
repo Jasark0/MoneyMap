@@ -31,6 +31,12 @@ struct SetupView: View {
     }
     
     func setUp() async {
+        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
+            
+            return
+        }
+
+        
         do {
             errorMessage = nil
             

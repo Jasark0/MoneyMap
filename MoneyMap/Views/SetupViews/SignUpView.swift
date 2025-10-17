@@ -30,7 +30,7 @@ struct SignUpView: View{
         let last_name: String
     }
     
-    func signUp() async {
+    func signUp() async {        
         do{
             errorMessage = nil
             
