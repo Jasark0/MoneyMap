@@ -16,7 +16,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3DD7FA342EA2B5CC005D506F /* MoneyMap.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MoneyMap.xcodeproj; sourceTree = "<group>"; };
 		3DEB25D42E940EC90001949A /* MoneyMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoneyMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,13 +44,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3DD7FA352EA2B5CC005D506F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		3DEB25CB2E940EC90001949A = {
 			isa = PBXGroup;
 			children = (
@@ -129,12 +121,6 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3DEB25D52E940EC90001949A /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 3DD7FA352EA2B5CC005D506F /* Products */;
-					ProjectRef = 3DD7FA342EA2B5CC005D506F /* MoneyMap.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				3DEB25D32E940EC90001949A /* MoneyMap */,
