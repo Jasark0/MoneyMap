@@ -1,2 +1,6 @@
 *.xcuserstate
 xcdebugger/
+
+# Xcode user state
+*.xcuserstate
+**/xcuserdata/
