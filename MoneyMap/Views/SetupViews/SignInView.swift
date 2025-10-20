@@ -15,7 +15,7 @@ struct SignInView: View {
     @State private var password = ""
     
     @State private var errorMessage: String? = nil
-    @State private var navigateToMain = false
+//    @State private var navigateToMain = false
     
     struct Profile: Decodable {
         let id: UUID
@@ -68,9 +68,8 @@ struct SignInView: View {
                     
                     // Store user ID in session manager
                     sessionManager.setUser(id: profile.id)
-
                     
-                    navigateToMain = true
+//                    navigateToMain = true
                 }
                 else {
                     print("Could not retrieve email for user.")
@@ -133,9 +132,6 @@ struct SignInView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .navigationDestination(isPresented: $navigateToMain) {
-                        MainView()
-                    }
                 }
             }
             
@@ -153,6 +149,7 @@ struct SignInView: View {
         }
         .navigationBarBackButtonHidden(true)
     }
+    
 }
 
 //PREVIEW NOT WORKING!
