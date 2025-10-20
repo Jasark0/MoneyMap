@@ -19,8 +19,15 @@ class SessionManager: ObservableObject {
     @Published var userId: UUID? = nil
     @Published var firstName: String? = nil
 
+    @Published var isSignedIn: Bool = false
+    
     func setUser(id: UUID) {
         self.userId = id
+        self.isSignedIn = true
+    }
+    func signOut(){
+        self.userId = nil
+        self.isSignedIn = false
     }
 
     func fetchProfile() async {

@@ -77,9 +77,9 @@ struct SignUpView: View{
             ZStack{
                 ScrollView{
                     VStack{
-                        Text("Let's get you set up")
+                        Text("Let's get you set up!")
                             .font(.system(size: 28))
-                            .padding(.top, 15)
+                            .padding(.top, 45)
                             .padding(.bottom, 30)
                         
                         

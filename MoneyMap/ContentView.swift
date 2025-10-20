@@ -9,11 +9,14 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @StateObject var sessionManager = SessionManager()
+    @EnvironmentObject var sessionManager: SessionManager
 
     var body: some View {
-        GetStartedView()
-            .environmentObject(sessionManager)
+        if sessionManager.isSignedIn{
+            MainShellView()
+        }else{
+            GetStartedView()
+        }
     }
 }
 
@@ -21,4 +24,6 @@ struct ContentView: View {
     ContentView()
         .environmentObject(SessionManager.preview)
 }
+
+
 
