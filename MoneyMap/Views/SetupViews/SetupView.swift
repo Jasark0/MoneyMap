@@ -112,7 +112,6 @@ struct SetupView: View {
     }
 }
 
-//PREVIEW NOT WORKING!
 #Preview {
     NavigationStack {
         SetupView()

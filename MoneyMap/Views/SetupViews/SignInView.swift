@@ -155,7 +155,6 @@ struct SignInView: View {
     }
 }
 
-//PREVIEW NOT WORKING!
 #Preview {
     NavigationStack {
         SignInView()
