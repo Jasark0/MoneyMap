@@ -10,10 +10,7 @@ import SwiftUI
 struct MainView: View {
     var body: some View {
         Text("Welcome to main page!")
-            .font(.system(size: 50))
-            .navigationBarBackButtonHidden(true)
     }
-    
 }
 
 #Preview {
