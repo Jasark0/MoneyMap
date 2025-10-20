@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct GetStartedView: View {
+    @EnvironmentObject var sessionManger: SessionManager
+    
     var body: some View {
         NavigationStack{
             VStack{
@@ -15,7 +17,7 @@ struct GetStartedView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 350, height: 350)
-                NavigationLink(destination: SignUpView()){
+                NavigationLink(destination: SignUpView().environmentObject(sessionManger)){
                     Text("Get Started  >>>")
                         .font(.system(size: 18))
                         .padding(.horizontal, 100)
