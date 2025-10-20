@@ -19,17 +19,20 @@ class SessionManager: ObservableObject {
     @Published var userId: UUID? = nil
     @Published var firstName: String? = nil
 
-    @Published var isSignedIn: Bool = false
+    @Published var isLoggedIn: Bool = false
     
     func setUser(id: UUID) {
         self.userId = id
-        self.isSignedIn = true
+        self.isLoggedIn = true
+    }
+    func signIn(id: UUID) {
+        self.userId = id
+        self.isLoggedIn = true
     }
     func signOut(){
         self.userId = nil
-        self.isSignedIn = false
+        self.isLoggedIn = false
     }
-
     func fetchProfile() async {
         guard let userId = userId else {
             print("❌ No userId found")

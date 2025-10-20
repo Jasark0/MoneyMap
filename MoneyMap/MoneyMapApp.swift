@@ -7,17 +7,25 @@
 
 import SwiftUI
 import SwiftData
+import Combine
 
 @main
 struct MoneyMapApp: App {
     @StateObject private var sessionManager = SessionManager()
-
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(sessionManager)
+            if sessionManager.isLoggedIn {
+                MainView()
+                    .environmentObject(sessionManager)
+            } else {
+                SignInView()
+                    .environmentObject(sessionManager)
+            }
         }
     }
 }
+
+
 
 
