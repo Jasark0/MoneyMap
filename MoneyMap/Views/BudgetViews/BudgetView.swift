@@ -21,7 +21,7 @@ struct BudgetView: View {
          VStack(spacing: 0) {
 
              ZStack(alignment: .leading) {
-                 Color("Oxford Blue").ignoresSafeArea(edges: .top)
+                 Color("Independence").ignoresSafeArea(edges: .top)
                  Text("Budget Breakdown")
                      .font(.system(.title2, weight: .semibold))
                      .foregroundStyle(.white)
@@ -53,7 +53,6 @@ struct BudgetView: View {
                  .padding(.bottom, 24)
              }
          }
-         .toolbar(.hidden, for: .navigationBar) // custom banner 
      }
  }
 

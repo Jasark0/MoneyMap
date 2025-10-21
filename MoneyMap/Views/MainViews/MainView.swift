@@ -75,12 +75,14 @@ struct MainView: View {
                         
                         Spacer()
                         
-                        PieChartView(
-                            pieData: pieData.map { CategoryData(category: $0.category, percent: $0.percent) },
-                            baseColors: baseColors
-                        )
-                        .frame(width: 220, height: 220)
-
+                        NavigationLink(destination: BudgetView()){
+                            PieChartView(
+                                pieData: pieData.map { CategoryData(category: $0.category, percent: $0.percent) },
+                                baseColors: baseColors
+                            )
+                            .frame(width: 220, height: 220)
+                        }
+                        
                         Spacer()
                         
                         // Legend – horizontal style with capsules

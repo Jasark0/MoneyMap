@@ -44,7 +44,7 @@ private struct DetailBanner: View {
 
     var body: some View {
         ZStack {
-            Color("Oxford Blue").ignoresSafeArea(edges: .top)
+            Color("Independence").ignoresSafeArea(edges: .top)
 
             HStack(spacing: 12) {
                 Button {
