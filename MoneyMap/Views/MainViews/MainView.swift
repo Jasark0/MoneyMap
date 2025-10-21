@@ -14,21 +14,43 @@ struct MainView: View {
     let budgeted: Double = 5000
     let left: Double = 1000
     let monthlyGoal: Double = 500
-    let pieData: [(category: String, percent: Double, color: Color)] = [
-        ("Needs", 50, Color.blue),
-        ("Wants", 30, Color.orange),
-        ("Savings", 20, Color.green)
+    
+    // Base color set
+    let baseColors: [Color] = [
+        Color("Royal Blue"),
+        Color("Wild Blue Yonder"),
+        Color("Independence")
     ]
+    
+    // Budgeted data
+    let pieData: [(category: String, percent: Double)] = [
+        ("Needs", 50),
+        ("Wants", 30),
+        ("Savings", 20)
+    ]
+    
+    // Actual usage multipliers (e.g. 90% of Needs)
+    let usageMultipliers: [Double] = [0.9, 0.1, 0.6]
+    
+    // Derived actual usage data
+    var actualUsageData: [(category: String, percent: Double, color: Color)] {
+        zip(pieData, baseColors).enumerated().map { (index, pair) in
+            let (data, color) = pair
+            let actual = data.percent * usageMultipliers[index]
+            return (data.category, actual, color)
+        }
+    }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 30) {
-                    
-                    // MARK: Welcome & Left Money
                     VStack(alignment: .leading, spacing: 8) {
                         if let name = sessionManager.firstName {
-                            Text("Welcome back, \(name)!")
+                            Text("Welcome back,")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Text(name + "!")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                         } else {
@@ -39,49 +61,54 @@ struct MainView: View {
                         
                         Text("$\(Int(left)) left")
                             .font(.title2)
-                            .foregroundColor(.green)
+                            .foregroundColor(Color("Royal Blue"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
-                    
-                    // MARK: Budgeted This Month
+                
                     VStack(spacing: 5) {
                         Text("$\(Int(budgeted)) budgeted this month")
                             .font(.headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
                         
-                        // MARK: Pie Chart
-                        Chart {
-                            ForEach(pieData, id: \.category) { item in
-                                SectorMark(
-                                    angle: .value("Percent", item.percent),
-                                    innerRadius: .ratio(0.5),
-                                    angularInset: 1
-                                )
-                                .foregroundStyle(item.color)
-                            }
-                        }
-                        .frame(height: 200)
-                        .padding(.horizontal)
+                        Spacer()
                         
-                        // MARK: Pie chart labels / tabs
-                        HStack(spacing: 20) {
-                            ForEach(pieData, id: \.category) { item in
-                                VStack {
-                                    Circle()
-                                        .fill(item.color)
-                                        .frame(width: 15, height: 15)
-                                    Text("\(Int(item.percent))% \(item.category)")
-                                        .font(.caption)
+                        PieChartView(
+                            pieData: pieData.map { CategoryData(category: $0.category, percent: $0.percent) },
+                            baseColors: baseColors
+                        )
+                        .frame(width: 220, height: 220)
+
+                        Spacer()
+                        
+                        // Legend – horizontal style with capsules
+                        Text("Budgets used")
+                            .font(.caption)
+                            .padding(.horizontal)
+
+                        
+                            HStack(spacing: 8) {
+                                ForEach(Array(zip(pieData.indices, pieData)), id: \.0) { index, item in
+                                    HStack(spacing: 4) {
+                                        Circle()
+                                            .fill(baseColors[index])
+                                            .frame(width: 12, height: 12)
+                                        Text("\(item.category): \(Int(usageMultipliers[index] * 100))%")
+                                            .font(.caption2)
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(baseColors[index].opacity(0.8))
+                                    .clipShape(Capsule())
                                 }
                             }
-                        }
-                        .padding(.top, 10)
+                            .padding(.vertical, 4)
                     }
                     
-                    // MARK: Monthly Goal
+                    // Monthly goal
                     VStack(alignment: .leading, spacing: 5) {
                         Text("$\(Int(monthlyGoal)) monthly goal")
                             .font(.headline)
@@ -92,14 +119,14 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
                     
-                    // MARK: Expenditure Button
+                    // Button
                     NavigationLink(destination: ExpenditureView()) {
                         Text("Add Expenditure")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.blue)
+                            .background(Color("Oxford Blue"))
                             .cornerRadius(15)
                             .padding(.horizontal)
                     }
