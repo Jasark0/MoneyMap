@@ -15,8 +15,7 @@ struct SignInView: View {
     @State private var password = ""
     
     @State private var errorMessage: String? = nil
-//    @State private var navigateToMain = false
-    
+
     struct Profile: Decodable {
         let id: UUID
     }
@@ -66,10 +65,9 @@ struct SignInView: View {
                         password: password
                     )
                     
-                    // Store user ID in session manager
                     sessionManager.setUser(id: profile.id)
-                    
-//                    navigateToMain = true
+                    sessionManager.signIn(id: profile.id)
+
                 }
                 else {
                     print("Could not retrieve email for user.")
@@ -152,7 +150,6 @@ struct SignInView: View {
     
 }
 
-//PREVIEW NOT WORKING!
 #Preview {
     NavigationStack {
         SignInView()

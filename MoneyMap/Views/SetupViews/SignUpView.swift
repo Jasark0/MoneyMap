@@ -153,7 +153,6 @@ struct SignUpView: View{
     }
 }
 
-//PREVIEW NOT WORKING!
 #Preview {
     NavigationStack {
         SignUpView()
