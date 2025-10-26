@@ -12,7 +12,7 @@ struct ContentView: View {
     @EnvironmentObject var sessionManager: SessionManager
 
     var body: some View {
-        if sessionManager.isSignedIn{
+        if sessionManager.isLoggedIn{
             MainShellView()
         }else{
             GetStartedView()

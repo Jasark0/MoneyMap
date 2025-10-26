@@ -53,11 +53,12 @@ struct MainView: View {
                             Text(name + "!")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                        } else {
-                            ProgressView()
-                            Text("Loading profile...")
-                                .foregroundColor(.gray)
                         }
+//                        else {
+//                            ProgressView()
+//                            Text("Loading profile...")
+//                                .foregroundColor(.gray)
+//                        }
                         
                         Text("$\(Int(left)) left")
                             .font(.title2)
