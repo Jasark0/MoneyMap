@@ -18,43 +18,45 @@ struct UserProfile: Codable {
 class SessionManager: ObservableObject {
     @Published var userId: UUID? = nil
     @Published var firstName: String? = nil
-
     @Published var isLoggedIn: Bool = false
     
     func setUser(id: UUID) {
         self.userId = id
         self.isLoggedIn = true
+        Task { await fetchProfile() }
     }
+    
     func signIn(id: UUID) {
-        self.userId = id
-        self.isLoggedIn = true
+        setUser(id: id)
     }
-    func signOut(){
+    
+    func signOut() {
         self.userId = nil
         self.isLoggedIn = false
+        self.firstName = nil
     }
+    
     func fetchProfile() async {
         guard let userId = userId else {
-            print("❌ No userId found")
+            print("No userId found")
             return
         }
 
         do {
-            print("🔍 Fetching profile for user ID:", userId)
-
+            print("Fetching profile for user ID:", userId)
             let profiles: [UserProfile] = try await supabase
                 .from("profiles")
                 .select("id, first_name")
                 .eq("id", value: userId)
                 .execute()
                 .value
-
+            
             if let profile = profiles.first {
                 self.firstName = profile.first_name
+                print("Fetched name:", profile.first_name ?? "nil")
             } else {
                 print("No profile found for this user ID")
             }
-
         } catch {
             print("Error fetching profile:", error)
         }
@@ -62,7 +64,6 @@ class SessionManager: ObservableObject {
 
     static var preview: SessionManager {
         let manager = SessionManager()
-        manager.setUser(id: UUID())
         manager.firstName = "PreviewUser"
         return manager
     }
