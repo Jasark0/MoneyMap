@@ -38,7 +38,6 @@ struct MainShellView: View {
         case .home:
             NavigationStack {
                 MainView()
-                    .navigationTitle("Home")
                     .navigationBarTitleDisplayMode(.inline)
             }
             
