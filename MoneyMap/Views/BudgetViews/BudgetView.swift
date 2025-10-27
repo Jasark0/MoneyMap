@@ -125,26 +125,60 @@ struct ProgressBar: View {
     }
 }
 
+//struct UsedPill: View {
+//    let usedPercent: Double // 0...1
+//
+//    var body: some View {
+//        HStack(spacing: 6) {
+//            Circle()
+//                .fill(usedPercent < 0.5 ? Color.green : (usedPercent < 0.8 ? Color.yellow : Color.red))
+//                .frame(width: 8, height: 8)
+//            Text("Used: \(Int(usedPercent * 100))%")
+//                .font(.footnote)
+//                .fontWeight(.semibold)
+//        }
+//        .padding(.horizontal, 10)
+//        .padding(.vertical, 6)
+//        .background(
+//            Capsule().fill(Color.black.opacity(0.85))
+//        )
+//        .foregroundStyle(.white)
+//    }
+//}
+
 struct UsedPill: View {
-    let usedPercent: Double // 0...1
+    let usedPercent: Double      // 0...1
+    let reportKind: ReportsKind? // optional for ReportsView only
+
+    init(usedPercent: Double, kind: ReportsKind? = nil) {
+        self.usedPercent = usedPercent
+        self.reportKind = kind
+    }
 
     var body: some View {
+        let isGoal = (reportKind == .goal)
+        let textLabel = isGoal ? "Met" : "Used"
+        let color: Color = isGoal
+            ? .green
+            : (usedPercent < 0.5 ? .green :
+               (usedPercent < 0.8 ? .yellow : .red))
+
         HStack(spacing: 6) {
             Circle()
-                .fill(usedPercent < 0.5 ? Color.green : (usedPercent < 0.8 ? Color.yellow : Color.red))
+                .fill(color)
                 .frame(width: 8, height: 8)
-            Text("Used: \(Int(usedPercent * 100))%")
+            Text("\(textLabel): \(Int(usedPercent * 100))%")
                 .font(.footnote)
                 .fontWeight(.semibold)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(
-            Capsule().fill(Color.black.opacity(0.85))
-        )
+        .background(Capsule().fill(Color.black.opacity(0.85)))
         .foregroundStyle(.white)
     }
 }
+
+
 
 
 #Preview {
