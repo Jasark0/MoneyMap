@@ -1,10 +1,3 @@
-//
-//  SignUpView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 import Supabase
 
@@ -37,8 +30,7 @@ struct SignUpView: View{
             let response = try await supabase.auth.signUp(email: email, password: password)
             let userId = response.user.id
             
-            //store userId in sessionManager to be accessed in all views
-            sessionManager.setUser(id: userId)
+            sessionManager.signIn(id: userId)
             
             let profile = Profile(
                 id: userId.uuidString,

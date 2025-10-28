@@ -1,10 +1,3 @@
-//
-//  MonthlyView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 private func fixedDate(month: Int, day: Int, year: Int? = nil) -> Date {

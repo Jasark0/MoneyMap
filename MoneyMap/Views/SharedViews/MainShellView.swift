@@ -57,7 +57,6 @@ struct MainShellView: View {
         case .settings:
             NavigationStack {
                 SettingsView()
-                    .navigationTitle("Settings")
                     .navigationBarTitleDisplayMode(.inline)
             }
         }

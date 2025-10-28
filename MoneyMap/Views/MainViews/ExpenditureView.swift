@@ -28,11 +28,8 @@ struct ExpenditureView: View {
                             selection: $selectedType
                         )
 
-                        
-                        // Amount
                         SetupInputView(title: "Amount", placeHolder: "$", number: $amount)
                         
-                        // Description
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Description (optional)")
                                 .fontWeight(.semibold)
@@ -46,9 +43,7 @@ struct ExpenditureView: View {
                     }
                     .padding(.horizontal, 30)
                     
-                    // Finish button
                     Button(action: {
-                        // Here you can save the expenditure to your database
                         navigateToMain = true
                     }) {
                         Text("Finish")

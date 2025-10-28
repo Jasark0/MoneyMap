@@ -1,10 +1,3 @@
-//
-//  ProfileView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct ProfileView: View {
@@ -23,7 +16,6 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                // Banner
                 ZStack(alignment: .leading) {
                     Color("Independence").ignoresSafeArea(edges: .top)
                     HStack {
@@ -44,7 +36,6 @@ struct ProfileView: View {
                 }
                 .frame(height: bannerHeight)
 
-                // Content
                 ScrollView {
                     VStack(spacing: 36) {
                         InputView(title: "First Name", text: $firstName)
@@ -55,7 +46,6 @@ struct ProfileView: View {
                     .padding(.horizontal, 30)
                     .padding(.top, 30)
 
-                    // Reset Password button
                     Button(action: {
                         navigateToForgotPassword = true
                     }) {
@@ -66,13 +56,11 @@ struct ProfileView: View {
                             .padding(.top, 20)
                     }
 
-                    // Save button
                     Button(action: {
                         withAnimation {
                             showSavedMessage = true
                         }
 
-                        // Simulate saving, then navigate to SettingsView
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             withAnimation {
                                 showSavedMessage = false

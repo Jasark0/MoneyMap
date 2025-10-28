@@ -15,18 +15,17 @@ struct MoneyMapApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            if sessionManager.isLoggedIn {
-//                MainView()
-//                    .environmentObject(sessionManager)
-//            } else {
-//                SignInView()
-//                    .environmentObject(sessionManager)
-//            }
             ContentView()
                 .environmentObject(sessionManager)
+                .task {
+                    if sessionManager.isLoggedIn {
+                        await sessionManager.fetchProfile()
+                    }
+                }
         }
     }
 }
+
 
 
 

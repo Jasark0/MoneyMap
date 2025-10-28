@@ -1,10 +1,3 @@
-//
-//  MainView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 import Charts
 
@@ -15,31 +8,22 @@ struct MainView: View {
     let left: Double = 1000
     let monthlyGoal: Double = 500
     
-    // Base color set
+    //Base color set
     let baseColors: [Color] = [
         Color("Royal Blue"),
         Color("Wild Blue Yonder"),
         Color("Independence")
     ]
     
-    // Budgeted data
+    //Budgeted data percentages
     let pieData: [(category: String, percent: Double)] = [
         ("Needs", 50),
         ("Wants", 30),
         ("Savings", 20)
     ]
     
-    // Actual usage multipliers (e.g. 90% of Needs)
+    //Actual usage multipliers
     let usageMultipliers: [Double] = [0.9, 0.1, 0.6]
-    
-    // Derived actual usage data
-    var actualUsageData: [(category: String, percent: Double, color: Color)] {
-        zip(pieData, baseColors).enumerated().map { (index, pair) in
-            let (data, color) = pair
-            let actual = data.percent * usageMultipliers[index]
-            return (data.category, actual, color)
-        }
-    }
     
     var body: some View {
         NavigationStack {
@@ -54,11 +38,11 @@ struct MainView: View {
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                         }
-//                        else {
-//                            ProgressView()
-//                            Text("Loading profile...")
-//                                .foregroundColor(.gray)
-//                        }
+                        else {
+                            ProgressView()
+                            Text("Loading profile...")
+                                .foregroundColor(.gray)
+                        }
                         
                         Text("$\(Int(left)) left")
                             .font(.title2)
@@ -86,12 +70,10 @@ struct MainView: View {
                         
                         Spacer()
                         
-                        // Legend – horizontal style with capsules
                         Text("Budgets used")
                             .font(.caption)
                             .padding(.horizontal)
 
-                        
                             HStack(spacing: 8) {
                                 ForEach(Array(zip(pieData.indices, pieData)), id: \.0) { index, item in
                                     HStack(spacing: 4) {
@@ -111,7 +93,6 @@ struct MainView: View {
                             .padding(.vertical, 4)
                     }
                     
-                    // Monthly goal
                     VStack(alignment: .leading, spacing: 5) {
                         Text("$\(Int(monthlyGoal)) monthly goal")
                             .font(.headline)
@@ -122,7 +103,6 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
                     
-                    // Button
                     NavigationLink(destination: ExpenditureView()) {
                         Text("Add Expenditure")
                             .font(.headline)

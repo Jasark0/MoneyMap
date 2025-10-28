@@ -1,10 +1,3 @@
-//
-//  SignInView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 import Supabase
 
@@ -65,7 +58,6 @@ struct SignInView: View {
                         password: password
                     )
                     
-                    sessionManager.setUser(id: profile.id)
                     sessionManager.signIn(id: profile.id)
 
                 }

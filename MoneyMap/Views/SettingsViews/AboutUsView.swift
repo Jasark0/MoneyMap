@@ -6,7 +6,6 @@ struct AboutUsView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Banner
                 ZStack(alignment: .leading) {
                     Color("Independence").ignoresSafeArea(edges: .top)
                     Text("About Us")
@@ -18,7 +17,6 @@ struct AboutUsView: View {
                 }
                 .frame(height: bannerHeight)
 
-                // Content
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Welcome to MoneyMap!")

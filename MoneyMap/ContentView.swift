@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -12,10 +5,15 @@ struct ContentView: View {
     @EnvironmentObject var sessionManager: SessionManager
 
     var body: some View {
-        if sessionManager.isLoggedIn{
-            MainShellView()
-        }else{
-            GetStartedView()
+        Group {
+            if sessionManager.isLoggedIn {
+                MainShellView()
+            } else {
+                GetStartedView()
+            }
+        }
+        .onAppear {
+            sessionManager.restoreSession()
         }
     }
 }
