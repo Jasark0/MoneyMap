@@ -1,10 +1,3 @@
-//
-//  Supabase.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/8/25.
-//
-
 import Supabase
 import Foundation
 

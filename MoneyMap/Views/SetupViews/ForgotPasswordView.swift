@@ -40,7 +40,7 @@ struct ForgotPasswordView: View {
                         }
                         .padding(.top, 20)
                         
-                        Spacer(minLength: 60) // adds some breathing room above footer
+                        Spacer(minLength: 60)
                     }
                     .frame(maxWidth: .infinity)
                     .navigationDestination(isPresented: $navigateToNewPassword) {

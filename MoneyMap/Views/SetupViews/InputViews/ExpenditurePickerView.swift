@@ -1,10 +1,3 @@
-//
-//  ExpenditurePickerView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/21/25.
-//
-
 import SwiftUI
 
 struct ExpenditurePickerView: View {
@@ -20,7 +13,6 @@ struct ExpenditurePickerView: View {
                 .foregroundColor(.gray)
                 .fontWeight(.semibold)
 
-            // Dropdown button
             Button(action: {
                 withAnimation {
                     isExpanded.toggle()
@@ -43,7 +35,6 @@ struct ExpenditurePickerView: View {
                 )
             }
 
-            // Dropdown list
             if isExpanded {
                 VStack(spacing: 0) {
                     ForEach(options, id: \.self) { option in
@@ -78,7 +69,6 @@ struct ExpenditurePickerView: View {
     }
 }
 
-// Preview
 struct ExpenditurePickerView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State private var selectedType: String? = nil

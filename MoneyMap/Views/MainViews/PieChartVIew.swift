@@ -67,5 +67,4 @@ struct CircleSegment: Shape {
         ]
     )
     .padding()
-    .previewLayout(.sizeThatFits)
 }

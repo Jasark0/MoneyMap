@@ -1,10 +1,3 @@
-//
-//  SetupInputView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/9/25.
-//
-
 import SwiftUI
 
 extension View {

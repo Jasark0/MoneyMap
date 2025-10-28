@@ -1,14 +1,11 @@
-//
-//  SettingsView.swift
-//  MoneyMap
-//
-
 import SwiftUI
+import Supabase
 
 struct SettingsView: View {
     private let bannerHeight: CGFloat = 84
     @Environment(\.dismiss) private var dismiss
-
+    @EnvironmentObject var sessionManager: SessionManager
+    
     struct SettingsCard: View {
         let title: String
 
@@ -48,7 +45,6 @@ struct SettingsView: View {
             }
             .frame(height: bannerHeight)
             
-            // Scrollable content
             ScrollView {
                 VStack(spacing: 40) {
                     NavigationLink(destination: ProfileView()) {
@@ -65,11 +61,8 @@ struct SettingsView: View {
                 .padding(.top, 12)
             }
             
-            Spacer() // pushes logout button to bottom
-            
-            // Logout button pinned at bottom
             Button(action: {
-                print("Logged out")
+                sessionManager.signOut() 
             }) {
                 Text("Log Out")
                     .font(.headline)
@@ -80,14 +73,14 @@ struct SettingsView: View {
                     .cornerRadius(15)
                     .padding(.horizontal, 16)
             }
-            .padding(.bottom, 16) // some spacing from bottom edge
+            .padding(.bottom, 70)
         }
     }
 }
 
-
 #Preview {
     NavigationStack {
         SettingsView()
+            .environmentObject(SessionManager.preview)
     }
 }

@@ -1,9 +1,3 @@
-//
-//  User.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/9/25.
-
 import Foundation
 import Supabase
 import SwiftUI
@@ -20,20 +14,27 @@ class SessionManager: ObservableObject {
     @Published var firstName: String? = nil
     @Published var isLoggedIn: Bool = false
     
-    func setUser(id: UUID) {
+    func signIn(id: UUID) {
         self.userId = id
         self.isLoggedIn = true
+        UserDefaults.standard.set(id.uuidString, forKey: "userId")
         Task { await fetchProfile() }
-    }
-    
-    func signIn(id: UUID) {
-        setUser(id: id)
     }
     
     func signOut() {
         self.userId = nil
         self.isLoggedIn = false
         self.firstName = nil
+        UserDefaults.standard.removeObject(forKey: "userId")
+    }
+    
+    func restoreSession() {
+        if let idString = UserDefaults.standard.string(forKey: "userId"),
+           let uuid = UUID(uuidString: idString) {
+            self.userId = uuid
+            self.isLoggedIn = true
+            Task { await fetchProfile() }
+        }
     }
     
     func fetchProfile() async {
@@ -43,7 +44,6 @@ class SessionManager: ObservableObject {
         }
 
         do {
-            print("Fetching profile for user ID:", userId)
             let profiles: [UserProfile] = try await supabase
                 .from("profiles")
                 .select("id, first_name")
@@ -53,7 +53,6 @@ class SessionManager: ObservableObject {
             
             if let profile = profiles.first {
                 self.firstName = profile.first_name
-                print("Fetched name:", profile.first_name ?? "nil")
             } else {
                 print("No profile found for this user ID")
             }
