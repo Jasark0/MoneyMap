@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainShellView: View {
     @State private var selection: AppTab = .home
+    @EnvironmentObject var sessionManager: SessionManager
     private let reservedBottomSpace: CGFloat = 72
     
     var body: some View {
@@ -63,5 +64,8 @@ struct MainShellView: View {
 }
 
 
-#Preview { MainShellView() }
+#Preview {
+    MainShellView()
+        .environmentObject(SessionManager.preview)
+}
 
