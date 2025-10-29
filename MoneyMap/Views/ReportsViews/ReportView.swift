@@ -40,8 +40,8 @@ struct ReportView: View {
                             NavigationLink {
                                 switch card.kind {
                                 case .monthly: MonthlyView()
-                                case .yearly:  YearlyView()
-                                case .goal:    EmptyView() // not used
+                                case .yearly: YearlyView()
+                                case .goal: EmptyView() // not used
                                 }
                             } label: {
                                 ReportCard(card: card, showChevron: true)
@@ -111,12 +111,6 @@ private struct ReportCard: View {
                                 radius: card.kind == .goal && card.progress >= 1.0 ? 12 : 8,
                                 y: card.kind == .goal && card.progress >= 1.0 ? 4 : 2)
                 )
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 16)
-//                        .stroke(card.kind == .goal && card.progress >= 1.0
-//                                ? Color.yellow.opacity(0.8)
-//                                : Color.clear, lineWidth: 2)
-//                )        .contentShape(Rectangle())
         .accessibilityAddTraits(showChevron ? .isButton : [])
     }
 }

@@ -42,7 +42,6 @@ struct YearlyView: View {
                             .background(Color.white.opacity(0.18))
                             .clipShape(Circle())
                     }
-
                     Text("Yearly Reports")
                         .font(.system(.title2, weight: .semibold))
                         .foregroundStyle(.white)
@@ -64,7 +63,9 @@ struct YearlyView: View {
                     HalfYearChartCard(
                         title: "Jan - Jun",
                         months: ["Jan","Feb","Mar","Apr","May","Jun"],
-                        wants: H1_wants, needs: H1_needs, savings: H1_savings
+                        wants: H1_wants,
+                        needs: H1_needs,
+                        savings: H1_savings
                     )
 
                     // July–Dec
