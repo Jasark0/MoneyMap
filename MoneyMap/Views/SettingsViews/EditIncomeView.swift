@@ -16,10 +16,9 @@ struct EditIncomeView: View {
                     Text("Edit Income")
                         .font(.system(size: 28))
                         .fontWeight(.bold)
-                        .padding(.top, 15)
                         .padding(.bottom, 5)
                     
-                    VStack(spacing: 25) {
+                    VStack(spacing: 16) {
                         SetupInputView(title: "Monthly Income", placeHolder: "$", number: $income)
                         SetupInputView(title: "Goal", placeHolder: "$", number: $goal)
                         SetupInputView(title: "Needs %", placeHolder: "%", number: $needs)
@@ -49,7 +48,7 @@ struct EditIncomeView: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden(true)
+//        .navigationBarBackButtonHidden(true)
     }
 }
 
