@@ -59,7 +59,7 @@ struct YearlyView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
-                .padding(.bottom, 24)
+                .padding(.bottom, 88)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -167,19 +167,19 @@ private struct HalfYearChartCard: View {
             // FIX THESE COLORS
             .chartForegroundStyleScale([
                 "Wants":   LinearGradient(
-                    colors: [Color(red: 0.53, green: 0.36, blue: 1.00).opacity(0.35),
+                    colors: [Color(red: 0.53, green: 0.36, blue: 1.00).opacity(0.55),
                              Color(red: 0.53, green: 0.36, blue: 1.00).opacity(0.05)],
                     startPoint: .top,
                     endPoint: .bottom),
 
                 "Needs":   LinearGradient(
-                    colors: [Color(red: 1.00, green: 0.45, blue: 0.45).opacity(0.35),
+                    colors: [Color(red: 1.00, green: 0.45, blue: 0.45).opacity(0.55),
                              Color(red: 1.00, green: 0.45, blue: 0.45).opacity(0.05)],
                     startPoint: .top,
                     endPoint: .bottom),
 
                 "Savings": LinearGradient(
-                    colors: [Color(red: 0.00, green: 0.78, blue: 0.65).opacity(0.35),
+                    colors: [Color(red: 0.00, green: 0.78, blue: 0.65).opacity(0.55),
                              Color(red: 0.00, green: 0.78, blue: 0.65).opacity(0.05)],
                     startPoint: .top,
                     endPoint: .bottom)
