@@ -54,6 +54,7 @@ struct TabBarView: View {
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 )
         )
+        .background(Color(.systemBackground).ignoresSafeArea(edges: .bottom))
     }
 }
 
@@ -98,9 +99,10 @@ private extension Color {
     }
     .safeAreaInset(edge: .bottom) {
         TabBarView(selection: .constant(.budget))
-            .padding(.bottom, 4)
-            .padding(.top, 4)
-            .offset(y: 32)          // <- sit closer to the curve
+            .padding(.horizontal, 8)
+            .padding(.bottom, 0)     // remove bottom padding
+            .background(Color.white.ignoresSafeArea(edges: .bottom))
     }
 }
+
 
