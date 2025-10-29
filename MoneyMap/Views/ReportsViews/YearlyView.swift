@@ -166,9 +166,25 @@ private struct HalfYearChartCard: View {
             }
             // FIX THESE COLORS
             .chartForegroundStyleScale([
-                "Wants":   Color(red: 0.0, green: 0.0, blue: 1.00), // soft purple/blue
-                "Needs":   Color(red: 1.00, green: 0.0, blue: 0.00), // soft red
-                "Savings": Color(red: 0.0, green: 1.0, blue: 0.00)  // light cyan
+                "Wants":   LinearGradient(
+                    colors: [Color(red: 0.53, green: 0.36, blue: 1.00).opacity(0.35),
+                             Color(red: 0.53, green: 0.36, blue: 1.00).opacity(0.05)],
+                    startPoint: .top,
+                    endPoint: .bottom),
+
+                "Needs":   LinearGradient(
+                    colors: [Color(red: 1.00, green: 0.45, blue: 0.45).opacity(0.35),
+                             Color(red: 1.00, green: 0.45, blue: 0.45).opacity(0.05)],
+                    startPoint: .top,
+                    endPoint: .bottom),
+
+                "Savings": LinearGradient(
+                    colors: [Color(red: 0.00, green: 0.78, blue: 0.65).opacity(0.35),
+                             Color(red: 0.00, green: 0.78, blue: 0.65).opacity(0.05)],
+                    startPoint: .top,
+                    endPoint: .bottom)
+
+
             ])
             .frame(height: 240)
             .padding(14)
