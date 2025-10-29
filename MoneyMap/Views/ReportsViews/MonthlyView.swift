@@ -48,7 +48,7 @@ struct MonthlyView: View {
                 Color("Independence").ignoresSafeArea(edges: .top)
                 HStack(spacing: 12) {
                     Button {
-                        goback() // back to report
+                        goback()
                     } label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 17, weight: .semibold))
