@@ -32,7 +32,7 @@ struct NeedsView: View {
 
 //banner + title
 private struct DetailBanner: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var goback
     let title: String
     var height: CGFloat = 84
 
@@ -42,7 +42,7 @@ private struct DetailBanner: View {
 
             HStack(spacing: 12) {
                 Button {
-                    dismiss()
+                    goback()
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .semibold))
