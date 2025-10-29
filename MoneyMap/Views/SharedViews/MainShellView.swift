@@ -50,7 +50,6 @@ struct MainShellView: View {
         case .reports:
             NavigationStack {
                 ReportView()
-                    .navigationTitle("Reports")
                     .navigationBarTitleDisplayMode(.inline)
             }
             

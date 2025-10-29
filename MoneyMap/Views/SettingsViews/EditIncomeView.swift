@@ -7,7 +7,7 @@ struct EditIncomeView: View {
     @State private var wants: Double = 30
     @State private var savings: Double = 20
     
-    @State private var navigateToMain = false
+    @State private var navigateToSettings = false
 
     var body: some View {
         NavigationStack {
@@ -28,7 +28,7 @@ struct EditIncomeView: View {
                     .padding(.horizontal, 30)
                     
                     Button(action: {
-                        navigateToMain = true
+                        navigateToSettings = true
                     }) {
                         Text("Save")
                             .font(.system(size: 18))
@@ -43,12 +43,11 @@ struct EditIncomeView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
-                .navigationDestination(isPresented: $navigateToMain) {
-                    MainView()
+                .navigationDestination(isPresented: $navigateToSettings) {
+                    SettingsView()
                 }
             }
         }
-//        .navigationBarBackButtonHidden(true)
     }
 }
 
