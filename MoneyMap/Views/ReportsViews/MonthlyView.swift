@@ -1,13 +1,10 @@
 import SwiftUI
 
-private func fixedDate(month: Int, day: Int, year: Int? = nil) -> Date {
-    let cal = Calendar.current
-    let y = year ?? cal.component(.year, from: .now)
-    return cal.date(from: DateComponents(year: y, month: month, day: day))!
-}
 
 struct MonthlyView: View {
-    // dummy data for now - set for october
+    @Environment(\.dismiss) private var goback
+    
+    // dummy data for now - set for october except emergency funds set to sept
     @State private var monthAnchor: Date = fixedDate(month: 10, day: 1, year: 2025)
     private var month: Int { Calendar.current.component(.month, from: monthAnchor) }
     private var year:  Int { Calendar.current.component(.year,  from: monthAnchor) }
@@ -19,11 +16,9 @@ struct MonthlyView: View {
               description: "I paid this", date: fixedDate(month: 10, day: 28, year: 2025)),
         .init(title: "Labubu", amount: 23.99, percentage: 0.10, kind: .wants,
               description: "Labububububu", date: fixedDate(month: 10, day: 23, year: 2025)),
-        // this shouldn't show up bc its in sept
         .init(title: "Emergency Funds", amount: 50, percentage: 0.30, kind: .savings,
               description: "In case I don't live tomorrow.", date: fixedDate(month: 9, day: 18, year: 2025))
     ]
-
 
     // get only the items of that month
     private var itemsForMonth: [ReportLineItem] {
@@ -33,10 +28,10 @@ struct MonthlyView: View {
                 cal.component(.month, from: $0.date) == month &&
                 cal.component(.year,  from: $0.date) == year
             }
-            .sorted { $0.date < $1.date }
+            .sorted { $0.date < $1.date } //sort in accending order
     }
 
-    // filter into needs, wants, savings
+    // split into needs, wants, savings
     private var needs:   [ReportLineItem] { itemsForMonth.filter { $0.kind == .needs } }
     private var wants:   [ReportLineItem] { itemsForMonth.filter { $0.kind == .wants } }
     private var savings: [ReportLineItem] { itemsForMonth.filter { $0.kind == .savings } }
@@ -45,12 +40,24 @@ struct MonthlyView: View {
         VStack(spacing: 0) {
             ZStack(alignment: .leading) {
                 Color("Independence").ignoresSafeArea(edges: .top)
-                Text("Monthly Reports")
-                    .font(.system(.title2, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
-                    .padding(.top, 8)
+                HStack(spacing: 12) {
+                    Button {
+                        goback() // back to report
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.white.opacity(0.18))
+                            .clipShape(Circle())
+                    }
+                    Text("Monthly Reports")
+                        .font(.system(.title2, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+                .padding(.top, 8)
             }
             .frame(height: 84)
 
@@ -69,10 +76,17 @@ struct MonthlyView: View {
     }
 }
 
+//remove once connected to db
+private func fixedDate(month: Int, day: Int, year: Int? = nil) -> Date {
+    let cal = Calendar.current
+    let y = year ?? cal.component(.year, from: .now)
+    return cal.date(from: DateComponents(year: y, month: month, day: day))!
+}
+
 private struct ReportSection<Destination: View>: View {
     let title: String
     let items: [ReportLineItem]
-    @ViewBuilder var viewAll: () -> Destination   // <-- accepts a destination view
+    @ViewBuilder var viewAll: () -> Destination   // accepts a destination view
 
     var body: some View {
         VStack(spacing: 8) {
@@ -81,7 +95,7 @@ private struct ReportSection<Destination: View>: View {
                     .font(.headline)
                 Spacer()
                 NavigationLink {
-                    viewAll()                      // <-- navigate to the passed-in view
+                    viewAll()  // goes to the passed-in view -eg needs, savings, wants
                 } label: {
                     HStack(spacing: 6) {
                         Text("View All")
@@ -120,10 +134,10 @@ private struct MonthlyLineItemRow: View {
                 Text(item.date, formatter: DateFormatter.mmdd)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .monospacedDigit()
+                    .monospacedDigit()  //10/29 takes the same space as 10/28
             }
 
-            if let desc = item.description, !desc.isEmpty {
+            if let desc = item.description, !desc.isEmpty { //shows the descp
                 Text("Desc: \(desc)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -160,8 +174,6 @@ private extension View {
             .contentShape(Rectangle())
     }
 }
-
-
 
 #Preview {
     MonthlyView()

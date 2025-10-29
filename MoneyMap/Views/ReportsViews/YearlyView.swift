@@ -11,6 +11,7 @@ import Charts
 
 struct YearlyView: View {
     // dummy data - saved - h1 and h2
+    @Environment(\.dismiss) private var goback
     private let savedThisYear: Double = 7_560
 
  
@@ -29,14 +30,30 @@ struct YearlyView: View {
         VStack(spacing: 0) {
             ZStack(alignment: .leading) {
                 Color("Independence").ignoresSafeArea(edges: .top)
-                Text("Yearly Reports")
-                    .font(.system(.title2, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
-                    .padding(.top, 8)
+
+                HStack(spacing: 12) {
+                    Button {
+                        goback() // goes back to reports
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.white.opacity(0.18))
+                            .clipShape(Circle())
+                    }
+
+                    Text("Yearly Reports")
+                        .font(.system(.title2, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+                .padding(.top, 8)
             }
             .frame(height: bannerHeight)
+            .navigationBarBackButtonHidden(true)
+
 
             ScrollView {
                 VStack(spacing: 16) {
@@ -62,7 +79,6 @@ struct YearlyView: View {
                 .padding(.bottom, 88)
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
