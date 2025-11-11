@@ -4,6 +4,7 @@ import Supabase
 struct SignUpView: View{
     @EnvironmentObject var sessionManager: SessionManager
     
+    @State private var userId: UUID? = nil
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var username = ""
@@ -23,43 +24,52 @@ struct SignUpView: View{
         let last_name: String
     }
     
-    func signUp() async {        
-        do{
-            errorMessage = nil
-            
-            let response = try await supabase.auth.signUp(email: email, password: password)
-            let userId = response.user.id
-            
-            sessionManager.signIn(id: userId)
-            
-            let profile = Profile(
-                id: userId.uuidString,
-                username: username,
-                first_name: firstName,
-                last_name: lastName
-            )
-            
-            try await supabase
-                .from("profiles")
-                .insert(profile)
-                .execute()
+    private func isValidEmail(_ email: String) -> Bool {
+        let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
+    }
     
-            navigateToSetup = true
+    func signUp() async {
+        guard isValidEmail(email) else {
+                errorMessage = "Invalid email format."
+                return
+            }
+            
+        guard password.count >= 8 else {
+            errorMessage = "Password must be at least 8 characters."
+            return
+        }
+        
+        do{
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            userId = response.user.id
+            
+            guard let userId = userId else {
+                errorMessage = "Failed to retrieve user ID."
+                return
+            }
+            
+            do {
+                let profile = Profile(
+                    id: userId.uuidString,
+                    username: username,
+                    first_name: firstName,
+                    last_name: lastName
+                )
+                
+                try await supabase
+                    .from("profiles")
+                    .insert(profile)
+                    .execute()
+                
+                navigateToSetup = true
+            }
+            catch{
+                errorMessage = "Username already exists!"
+            }
         }
         catch{
-            let errStr = error.localizedDescription.lowercased()
-            
-            if errStr.contains("duplicate"){
-                if (errStr.contains("profiles_pkey")){
-                    errorMessage = "Email already exists."
-                }
-                else if(errStr.contains("profiles_username_key")){
-                    errorMessage = "Username already exists."
-                }
-            }
-            else {
-                errorMessage = error.localizedDescription
-            }
+            errorMessage = "Email already exists!"
         }
     }
 
@@ -124,7 +134,10 @@ struct SignUpView: View{
                     }
                     .frame(maxWidth: .infinity)
                     .navigationDestination(isPresented: $navigateToSetup) {
-                        SetupView()
+                        if let id = userId {
+                            SetupView(userId: id)
+                                .environmentObject(sessionManager)
+                        }
                     }
                 }
             }

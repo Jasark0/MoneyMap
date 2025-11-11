@@ -100,7 +100,7 @@ struct ProfileView: View {
                             .background(Color.green.opacity(0.9))
                             .cornerRadius(12)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
-                            .padding(.bottom, 30)
+                            .padding(.bottom, 60)
                             .frame(maxHeight: .infinity, alignment: .bottom)
                     }
                 }
