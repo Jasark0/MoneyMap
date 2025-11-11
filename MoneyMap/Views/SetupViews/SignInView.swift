@@ -8,6 +8,7 @@ struct SignInView: View {
     @State private var password = ""
     
     @State private var errorMessage: String? = nil
+    @State private var navigateToMain = false
 
     struct Profile: Decodable {
         let id: UUID
@@ -59,7 +60,8 @@ struct SignInView: View {
                     )
                     
                     sessionManager.signIn(id: profile.id)
-
+                    
+                    navigateToMain = true
                 }
                 else {
                     print("Could not retrieve email for user.")
@@ -136,6 +138,9 @@ struct SignInView: View {
                 }
             }
             .padding(.top, 15)
+            .navigationDestination(isPresented: $navigateToMain) {
+                MainShellView()
+            }
         }
         .navigationBarBackButtonHidden(true)
     }

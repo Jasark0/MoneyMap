@@ -8,21 +8,18 @@ struct MainView: View {
     let left: Double = 1000
     let monthlyGoal: Double = 500
     
-    //Base color set
     let baseColors: [Color] = [
         Color("Royal Blue"),
         Color("Wild Blue Yonder"),
         Color("Independence")
     ]
     
-    //Budgeted data percentages
     let pieData: [(category: String, percent: Double)] = [
         ("Needs", 50),
         ("Wants", 30),
         ("Savings", 20)
     ]
     
-    //Actual usage multipliers
     let usageMultipliers: [Double] = [0.9, 0.1, 0.6]
     
     var body: some View {
@@ -39,7 +36,6 @@ struct MainView: View {
                                 .fontWeight(.bold)
                         }
                         else {
-                            ProgressView()
                             Text("Loading profile...")
                                 .foregroundColor(.gray)
                         }
