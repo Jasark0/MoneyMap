@@ -34,7 +34,12 @@ struct SignUpView: View{
                 errorMessage = "Invalid email format."
                 return
             }
-            
+        
+        guard username.count >= 6 else{
+            errorMessage = "Username must be least 6 characters."
+            return
+        }
+        
         guard password.count >= 8 else {
             errorMessage = "Password must be at least 8 characters."
             return

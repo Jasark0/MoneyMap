@@ -49,7 +49,7 @@ struct MainView: View {
                     .padding(.horizontal)
                 
                     VStack(spacing: 5) {
-                        Text("$\(Int(budgeted)) budgeted this month")
+                        Text("$\(Int(sessionManager.budgeted)) budgeted this month" )
                             .font(.headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -90,7 +90,7 @@ struct MainView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("$\(Int(monthlyGoal)) monthly goal")
+                        Text("$\(Int(sessionManager.goal)) monthly goal")
                             .font(.headline)
                         Text("On track to reach the goal this month")
                             .font(.subheadline)
