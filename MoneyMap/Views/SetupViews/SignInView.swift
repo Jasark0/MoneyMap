@@ -31,12 +31,12 @@ struct SignInView: View {
                 return emailProfile.email
             }
             else {
-                print("No email found for this ID")
+                errorMessage = "Username not found!"
                 return nil
             }
         }
         catch {
-            print("Error fetching email: \(error)")
+            errorMessage = "Username not found!"
             return nil
         }
     }
@@ -64,15 +64,15 @@ struct SignInView: View {
                     navigateToMain = true
                 }
                 else {
-                    print("Could not retrieve email for user.")
+                    errorMessage = "Incorrect username/password!"
                 }
             }
             else {
-                print("No profile found for username \(username)")
+                errorMessage = "Incorrect username/password!"
             }
         }
         catch {
-            print("Error during sign-in: \(error)")
+            errorMessage = "Incorrect username/password!"
         }
     }
 
