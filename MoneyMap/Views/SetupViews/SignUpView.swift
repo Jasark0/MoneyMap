@@ -24,6 +24,10 @@ struct SignUpView: View{
         let last_name: String
     }
     
+    struct UsernameCheck: Decodable {
+        let id: String
+    }
+    
     private func isValidEmail(_ email: String) -> Bool {
         let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
@@ -31,12 +35,12 @@ struct SignUpView: View{
     
     func signUp() async {
         guard isValidEmail(email) else {
-                errorMessage = "Invalid email format."
-                return
-            }
+            errorMessage = "Invalid email format."
+            return
+        }
         
-        guard username.count >= 6 else{
-            errorMessage = "Username must be least 6 characters."
+        guard username.count >= 6 else {
+            errorMessage = "Username must be at least 6 characters."
             return
         }
         
@@ -45,39 +49,57 @@ struct SignUpView: View{
             return
         }
         
-        do{
-            let response = try await supabase.auth.signUp(email: email, password: password)
-            userId = response.user.id
-            
-            guard let userId = userId else {
-                errorMessage = "Failed to retrieve user ID."
+        do {
+            do {
+                let usernameResult: [UsernameCheck] = try await supabase
+                    .from("profiles")
+                    .select("id")
+                    .eq("username", value: username)
+                    .execute()
+                    .value
+                
+                if !usernameResult.isEmpty {
+                    errorMessage = "Username already exists!"
+                    return
+                }
+            } catch {
+                errorMessage = "Failed to check username availability."
                 return
             }
+
+            
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            
+            let newUser = response.user
+            userId = newUser.id
+            
+            let profile = Profile(
+                id: newUser.id.uuidString,
+                username: username,
+                first_name: firstName,
+                last_name: lastName
+            )
             
             do {
-                let profile = Profile(
-                    id: userId.uuidString,
-                    username: username,
-                    first_name: firstName,
-                    last_name: lastName
-                )
-                
                 try await supabase
                     .from("profiles")
                     .insert(profile)
                     .execute()
                 
+                sessionManager.userId = newUser.id
+                
                 navigateToSetup = true
+                
+            } catch {
+                print("Profile insert error:", error)
+                errorMessage = " Username already exists!"
             }
-            catch{
-                errorMessage = "Username already exists!"
-            }
+            
         }
-        catch{
+        catch {
             errorMessage = "Email already exists!"
         }
     }
-
 
     var body: some View{
         NavigationStack{

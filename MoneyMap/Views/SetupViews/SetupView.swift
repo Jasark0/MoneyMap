@@ -5,7 +5,7 @@ struct SetupView: View {
     let userId: UUID
     @EnvironmentObject var sessionManager: SessionManager
     
-    @State private var income: Double = 500
+    @State private var income: Double = 5000
     @State private var goal: Double = 0
     @State private var needs: Double = 50
     @State private var wants: Double = 30

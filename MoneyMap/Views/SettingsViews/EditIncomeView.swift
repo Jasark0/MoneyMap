@@ -41,6 +41,8 @@ struct EditIncomeView: View {
                 .eq("id", value: userId)
                 .execute()
             
+            errorMessage = nil
+            
             sessionManager.budgeted = income
             sessionManager.goal = goal
             sessionManager.needs = needs
