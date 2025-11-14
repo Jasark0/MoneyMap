@@ -151,6 +151,41 @@ class SessionManager: ObservableObject {
         }
     }
     
+    func updateProfile(firstName: String, lastName: String, username: String) async -> Bool {
+        guard let userId = userId else {
+            print("No userId found")
+            return false
+        }
+        
+        do {
+            let updates = [
+                "first_name": firstName,
+                "last_name": lastName,
+                "username": username
+            ]
+            
+            let response = try await supabase
+                .from("profiles")
+                .update(updates)
+                .eq("id", value: userId)
+                .execute()
+            
+            if let error = response.error {
+                print("Error updating profile:", error)
+                return false
+            } else {
+                self.firstName = firstName
+                self.lastName = lastName
+                self.username = username
+                print("Profile updated successfully")
+                return true
+            }
+        } catch {
+            print("Error updating profile:", error)
+            return false
+        }
+    }
+    
     static var preview: SessionManager {
         let manager = SessionManager()
         manager.firstName = "PreviewUser"
