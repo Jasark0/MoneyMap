@@ -6,9 +6,9 @@ struct EditIncomeView: View {
 
     @State private var income: Double = 0
     @State private var goal: Double = 0
-    @State private var needs: Double = 0
-    @State private var wants: Double = 0
-    @State private var savings: Double = 0
+    @State private var needs: Double = 50
+    @State private var wants: Double = 30
+    @State private var savings: Double = 20
 
     @State private var navigateToSettings = false
     @State private var showSavedMessage = false
@@ -40,6 +40,8 @@ struct EditIncomeView: View {
                 .update(updates)
                 .eq("id", value: userId)
                 .execute()
+            
+            errorMessage = nil
             
             sessionManager.budgeted = income
             sessionManager.goal = goal
