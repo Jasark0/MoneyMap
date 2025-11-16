@@ -1,15 +1,3 @@
-//
-//  ReportView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
-//
-//  ReportView.swift
-//  MoneyMap
-//
-
 import SwiftUI
 
 struct ReportView: View {

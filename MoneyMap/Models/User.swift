@@ -22,6 +22,13 @@ struct IncomeRecord: Codable {
     let savings: Double
 }
 
+struct ExpenditureItem: Codable, Identifiable {
+    let id: UUID?
+    let cost: Double
+    let description: String?
+    let created_at: String?
+}
+
 @MainActor
 class SessionManager: ObservableObject {
     @Published var userId: UUID? = nil
@@ -38,6 +45,10 @@ class SessionManager: ObservableObject {
     @Published var wants: Double = 0
     @Published var savings: Double = 0
     
+    @Published var needsList: [ExpenditureItem] = []
+    @Published var wantsList: [ExpenditureItem] = []
+    @Published var savingsList: [ExpenditureItem] = []
+
     func signIn(id: UUID) {
         self.userId = id
         self.isLoggedIn = true
@@ -46,6 +57,7 @@ class SessionManager: ObservableObject {
             await fetchEmail()
             await fetchProfile()
             await fetchIncome()
+            await fetchAllExpenditures()
         }
     }
     
@@ -65,6 +77,7 @@ class SessionManager: ObservableObject {
                 await fetchEmail()
                 await fetchProfile()
                 await fetchIncome()
+                await fetchAllExpenditures()
             }
         }
     }
@@ -149,6 +162,34 @@ class SessionManager: ObservableObject {
             self.budgeted = 0
             self.goal = 0
         }
+    }
+    
+    func fetchExpenditures(from table: String) async -> [ExpenditureItem] {
+        guard let userId = userId else {
+            print("No userId found")
+            return []
+        }
+        
+        do {
+            let items: [ExpenditureItem] = try await supabase
+                .from(table)
+                .select("*")
+                .eq("id", value: userId)
+                .order("created_at", ascending: false)
+                .execute()
+                .value
+            
+            return items
+        } catch {
+            print("Error fetching \(table):", error)
+            return []
+        }
+    }
+    
+    func fetchAllExpenditures() async {
+        self.needsList = await fetchExpenditures(from: "needs")
+        self.wantsList = await fetchExpenditures(from: "wants")
+        self.savingsList = await fetchExpenditures(from: "savings")
     }
     
     static var preview: SessionManager {
