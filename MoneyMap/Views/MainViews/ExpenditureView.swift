@@ -111,6 +111,7 @@ struct ExpenditureView: View {
                     Button(action: {
                         Task {
                             if await addExpenditure() {
+                                await sessionManager.fetchAllExpenditures()
                                 navigateToMain = true
                             }
                         }

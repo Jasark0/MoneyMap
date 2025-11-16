@@ -4,9 +4,35 @@ import Charts
 struct MainView: View {
     @EnvironmentObject var sessionManager: SessionManager
     
-    let budgeted: Double = 5000
-    let left: Double = 1000
-    let monthlyGoal: Double = 500
+    var totalNeeds: Double {
+        sessionManager.needsList.reduce(0) { $0 + $1.cost }
+    }
+
+    var totalWants: Double {
+        sessionManager.wantsList.reduce(0) { $0 + $1.cost }
+    }
+
+    var totalSavings: Double {
+        sessionManager.savingsList.reduce(0) { $0 + $1.cost }
+    }
+    var left: Double {
+        totalNeeds + totalWants + totalSavings
+    }
+    var budgeted: Double {
+        sessionManager.budgeted
+    }
+    var needs: Double {
+        sessionManager.needs
+    }
+    var wants: Double {
+        sessionManager.wants
+    }
+    var savings: Double {
+        sessionManager.savings
+    }
+    var goal: Double {
+        sessionManager.goal
+    }
     
     let baseColors: [Color] = [
         Color("Royal Blue"),
@@ -14,13 +40,29 @@ struct MainView: View {
         Color("Independence")
     ]
     
-    let pieData: [(category: String, percent: Double)] = [
-        ("Needs", 50),
-        ("Wants", 30),
-        ("Savings", 20)
-    ]
+    var pieData: [(category: String, percent: Double)] {
+        [
+            ("Needs", needs),
+            ("Wants", wants),
+            ("Savings", savings)
+        ]
+    }
     
-    let usageMultipliers: [Double] = [0.9, 0.1, 0.6]
+    var needsPercent: Double {
+        guard budgeted * needs / 100 != 0 else { return 0 }
+        return totalNeeds / (budgeted * needs / 100)
+    }
+    var wantsPercent: Double {
+        guard budgeted * wants / 100 != 0 else { return 0 }
+        return totalWants / (budgeted * wants / 100)
+    }
+    var savingsPercent: Double {
+        guard budgeted * savings / 100 != 0 else { return 0 }
+        return totalSavings / (budgeted * savings / 100)
+    }
+    var usageMultipliers: [Double] {
+        [needsPercent, wantsPercent, savingsPercent]
+    }
     
     var body: some View {
         NavigationStack {
@@ -49,7 +91,7 @@ struct MainView: View {
                     .padding(.horizontal)
                 
                     VStack(spacing: 5) {
-                        Text("$\(Int(sessionManager.budgeted)) budgeted this month" )
+                        Text("$\(Int(budgeted)) budgeted this month" )
                             .font(.headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -90,7 +132,7 @@ struct MainView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("$\(Int(sessionManager.goal)) monthly goal")
+                        Text("$\(Int(goal)) monthly goal")
                             .font(.headline)
                         Text("On track to reach the goal this month")
                             .font(.subheadline)

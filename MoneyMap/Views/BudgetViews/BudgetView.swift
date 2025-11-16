@@ -70,11 +70,6 @@ struct BudgetView: View {
              }
          }
          .toolbar(.hidden, for: .navigationBar) // custom banner
-         .onAppear {
-             Task {
-                 await sessionManager.fetchAllExpenditures()
-             }
-         }
      }
  }
 
