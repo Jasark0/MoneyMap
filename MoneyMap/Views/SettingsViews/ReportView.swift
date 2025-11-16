@@ -1,18 +1,10 @@
-//
-//  ReportView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct ReportView: View {
-    
     private let cards: [ReportsCardModel] = [
         .init(kind: .monthly, progress: 0.75, subtitle: "Used: 75%"),
         .init(kind: .yearly,  progress: 0.10, subtitle: "Used: 10%"),
-        .init(kind: .goal,    progress: 0.90, subtitle: "Met 90%")
+        .init(kind: .goal,    progress: 1.00, subtitle: "Met 100%")
     ]
 
     private let bannerHeight: CGFloat = 84

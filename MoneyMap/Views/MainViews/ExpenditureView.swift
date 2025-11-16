@@ -1,4 +1,11 @@
 import SwiftUI
+import Supabase
+
+struct ExpenditureInsert: Encodable {
+    let id: UUID
+    let cost: Double
+    let description: String?
+}
 
 struct ExpenditureView: View {
     @EnvironmentObject var sessionManager: SessionManager
@@ -7,15 +14,66 @@ struct ExpenditureView: View {
     @State private var amount: Double = 0
     @State private var description: String = ""
     
+    @State private var errorMessage: String? = nil
+    
     @State private var navigateToMain = false
     
     let expenditureTypes = ["Needs", "Wants", "Savings"]
+    
+    private func addExpenditure() async -> Bool {
+        guard let userId = sessionManager.userId else {
+            print("No userId found")
+            return false
+        }
+
+        guard let selectedType = selectedType else {
+            errorMessage = "Select an expenditure type!"
+            return false
+        }
+
+        let payload = ExpenditureInsert(
+            id: userId,
+            cost: amount,
+            description: description.isEmpty ? nil : description
+        )
+
+        do {
+            switch selectedType {
+            case "Needs":
+                try await supabase
+                    .from("needs")
+                    .insert(payload)
+                    .execute()
+
+            case "Wants":
+                try await supabase
+                    .from("wants")
+                    .insert(payload)
+                    .execute()
+
+            case "Savings":
+                try await supabase
+                    .from("savings")
+                    .insert(payload)
+                    .execute()
+
+            default:
+                return false
+            }
+
+            return true
+
+        } catch {
+            errorMessage = "Missing fields!"
+            return false
+        }
+    }
+
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    
                     Text("Add an expenditure")
                         .font(.system(size: 28))
                         .padding(.top, 15)
@@ -43,8 +101,20 @@ struct ExpenditureView: View {
                     }
                     .padding(.horizontal, 30)
                     
+                    if let error = errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.subheadline)
+                            .padding(.top, 5)
+                    }
+                    
                     Button(action: {
-                        navigateToMain = true
+                        Task {
+                            if await addExpenditure() {
+                                await sessionManager.fetchAllExpenditures()
+                                navigateToMain = true
+                            }
+                        }
                     }) {
                         Text("Finish")
                             .font(.system(size: 18))

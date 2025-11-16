@@ -160,6 +160,8 @@ struct ProfileView: View {
                                     showSavedMessage = true
                                 }
                                 
+                                await sessionManager.fetchProfile()
+                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                     withAnimation {
                                         showSavedMessage = false
