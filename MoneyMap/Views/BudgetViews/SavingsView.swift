@@ -1,17 +1,27 @@
-//
-//  SavingsView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct SavingsView: View {
-    // dummy data
-    private let items: [BudgetCardModel] = [
-        .init(title: "Emergency Fund", amount: 300.00, percentOfBudget: 0.50, description: "in case i don't live tomorrow")
-    ]
+    @EnvironmentObject var sessionManager: SessionManager
+    
+    private var items: [BudgetCardModel] {
+        let income = sessionManager.budgeted
+        let savingsPercent = sessionManager.savings / 100
+        
+        let savingsBudget = income * savingsPercent
+        
+        return sessionManager.savingsList.map { saving in
+            let percentOfBudget = saving.cost / savingsBudget
+            let dateFormatter = ISO8601DateFormatter()
+            
+            return BudgetCardModel(
+                title: saving.title,
+                amount: saving.cost,
+                percentOfBudget: percentOfBudget,
+                description: saving.description ?? "",
+                created_at: dateFormatter.date(from: saving.created_at ?? "") ?? Date()
+            )
+        }
+    }
 
     private let bannerHeight: CGFloat = 84
 
@@ -71,6 +81,12 @@ private struct DetailBanner: View {
 private struct LineItemCard: View {
     let item: BudgetCardModel
 
+    let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "MMMM d, yyyy"
+        return df
+    }()
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("\(item.title) – \(currency(item.amount)) (\(percent(item.percentOfBudget)))")
@@ -81,9 +97,18 @@ private struct LineItemCard: View {
                 .frame(height: 1)
                 .overlay(Color.black.opacity(0.08))
 
-            Text("Desc: \(item.description)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            HStack {
+                if !item.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("Desc: \(item.description)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+                
+                Text(dateFormatter.string(from: item.created_at))
+                    .font(.subheadline)
+            }
         }
         .padding(16)
         .background(

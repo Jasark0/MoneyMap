@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ReportView: View {
+    @EnvironmentObject var sessionManager: SessionManager
+    
     private let cards: [ReportsCardModel] = [
         .init(kind: .monthly, progress: 0.75, subtitle: "Used: 75%"),
         .init(kind: .yearly,  progress: 0.10, subtitle: "Used: 10%"),

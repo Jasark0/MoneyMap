@@ -1,12 +1,27 @@
 import SwiftUI
 
 struct NeedsView: View {
-    private let items: [BudgetCardModel] = [
-        .init(title: "Car Insurance", amount: 45.99, percentOfBudget: 0.04, description: "I paid this"),
-        .init(title: "Rent",          amount: 900.00, percentOfBudget: 0.7828, description: "I paid this"),
-        .init(title: "Groceries",     amount: 90.00,  percentOfBudget: 0.07,   description: "I paid this"),
-        .init(title: "Car Loan",      amount: 425.00, percentOfBudget: 0.3828, description: "I paid this")
-    ]
+    @EnvironmentObject var sessionManager: SessionManager
+    
+    private var items: [BudgetCardModel] {
+        let income = sessionManager.budgeted
+        let needsPercent = sessionManager.needs / 100
+        
+        let needsBudget = income * needsPercent
+        
+        return sessionManager.needsList.map { need in
+            let percentOfBudget = need.cost / needsBudget
+            let dateFormatter = ISO8601DateFormatter()
+            
+            return BudgetCardModel(
+                title: need.title,
+                amount: need.cost,
+                percentOfBudget: percentOfBudget,
+                description: need.description ?? "",
+                created_at: dateFormatter.date(from: need.created_at ?? "") ?? Date()
+            )
+        }
+    }
 
     private let bannerHeight: CGFloat = 84
 
@@ -65,6 +80,12 @@ private struct DetailBanner: View {
 //card
 private struct LineItemCard: View {
     let item: BudgetCardModel
+    
+    let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "MMMM d, yyyy"
+        return df
+    }()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -75,10 +96,19 @@ private struct LineItemCard: View {
             Divider()
                 .frame(height: 1)
                 .overlay(Color.black.opacity(0.08))
+            
+            HStack {
+                if !item.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("Desc: \(item.description)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
 
-            Text("Desc: \(item.description)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                Spacer()
+                
+                Text(dateFormatter.string(from: item.created_at))
+                    .font(.subheadline)
+            }
         }
         .padding(16)
         .background(
