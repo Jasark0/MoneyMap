@@ -1,14 +1,6 @@
-//
-//  NeedsView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct NeedsView: View {
-    // dummy data
     private let items: [BudgetCardModel] = [
         .init(title: "Car Insurance", amount: 45.99, percentOfBudget: 0.04, description: "I paid this"),
         .init(title: "Rent",          amount: 900.00, percentOfBudget: 0.7828, description: "I paid this"),

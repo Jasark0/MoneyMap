@@ -15,11 +15,11 @@ struct MainView: View {
     var totalSavings: Double {
         sessionManager.savingsList.reduce(0) { $0 + $1.cost }
     }
-    var left: Double {
-        totalNeeds + totalWants + totalSavings
-    }
     var budgeted: Double {
         sessionManager.budgeted
+    }
+    var left: Double {
+        budgeted - (totalNeeds + totalWants + totalSavings)
     }
     var needs: Double {
         sessionManager.needs

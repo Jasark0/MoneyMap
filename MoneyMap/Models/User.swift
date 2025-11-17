@@ -24,6 +24,7 @@ struct IncomeRecord: Codable {
 
 struct ExpenditureItem: Codable, Identifiable {
     let id: UUID?
+    let title: String
     let cost: Double
     let description: String?
     let created_at: String?
