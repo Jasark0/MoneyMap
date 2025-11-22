@@ -134,9 +134,11 @@ struct MainView: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("$\(Int(goal)) monthly goal")
                             .font(.headline)
-                        Text("On track to reach the goal this month")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                        if left > goal {
+                            Text("On track to reach the goal this month")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)

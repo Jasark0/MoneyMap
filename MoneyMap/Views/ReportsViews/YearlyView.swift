@@ -1,17 +1,10 @@
-//
-//  YearlyView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
-
 import SwiftUI
 import Charts
 
 struct YearlyView: View {
-    // dummy data - saved - h1 and h2
+    @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var goback
+    
     private let savedThisYear: Double = 7_560
 
  

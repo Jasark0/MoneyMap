@@ -3,27 +3,66 @@ import SwiftUI
 struct ReportView: View {
     @EnvironmentObject var sessionManager: SessionManager
     
+    func formatCurrency(_ amount: Double) -> String {
+        let f = NumberFormatter()
+        f.numberStyle = .currency
+        f.maximumFractionDigits = 0  
+        return f.string(from: NSNumber(value: amount)) ?? "$0"
+    }
     var totalMonthlyExpenditure: Double {
         sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost } +
         sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost } +
         sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
     }
-
+    
+    var totalYearlyExpenditure :Double {
+        sessionManager.yearlyNeedsList.reduce(0) { $0 + $1.cost } +
+        sessionManager.yearlyWantsList.reduce(0) { $0 + $1.cost } +
+        sessionManager.yearlySavingsList.reduce(0) { $0 + $1.cost }
+    }
+    
     var budgeted: Double {
         sessionManager.budgeted
+    }
+    
+    var goal: Double {
+        sessionManager.goal
     }
     
     var monthlyPercentage: Double {
         totalMonthlyExpenditure / budgeted * 100
     }
     
+    var yearlyPercentage: Double {
+        totalYearlyExpenditure / (budgeted * 12) * 100
+    }
+    
+    var goalPercentage: Double {
+        let raw = (budgeted - totalMonthlyExpenditure) / goal * 100
+        return min(max(raw, 0), 100)
+    }
+    
+    var saved: Double {
+        let raw = budgeted - totalMonthlyExpenditure
+        return max(raw, 0)
+    }
+    
     private var cards: [ReportsCardModel] {
         [
-            .init(kind: .monthly, progress: monthlyPercentage, subtitle: "Used: \(Int(monthlyPercentage))%"),
-            .init(kind: .yearly,  progress: 0.10, subtitle: "Used: 10%"),
-            .init(kind: .goal,    progress: 1.00, subtitle: "Met 100%")
+            .init(kind: .monthly,
+                  progress: monthlyPercentage,
+                  subtitle: "Used: \(Int(monthlyPercentage))%"),
+            
+            .init(kind: .yearly,
+                  progress: yearlyPercentage,
+                  subtitle: "Used: \(Int(yearlyPercentage))%"),
+            
+            .init(kind: .goal,
+                  progress: goalPercentage,
+                  subtitle: "Met \(Int(goalPercentage))%, Saved \(formatCurrency(saved)) this month!")
         ]
     }
+
 
     private let bannerHeight: CGFloat = 84
 
