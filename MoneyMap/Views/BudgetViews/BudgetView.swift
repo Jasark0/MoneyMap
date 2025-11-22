@@ -7,19 +7,19 @@ struct BudgetView: View {
         let budget = sessionManager.budgeted * percentBudgeted / 100
         guard budget > 0 else { return 0 }
         
-        return totalSpent / budget * 100
+        return (totalSpent / budget) * 100
     }
     
     var totalNeeds: Double {
-        sessionManager.needsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost }
     }
 
     var totalWants: Double {
-        sessionManager.wantsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost }
     }
 
     var totalSavings: Double {
-        sessionManager.savingsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
     }
     
     var categories: [BudgetCategory] {
@@ -110,7 +110,7 @@ struct BudgetCard: View {
             HStack(spacing: 12) {
                 UsedPill(usedPercent: category.used)
 
-                ProgressBar(progress: category.used / 100, tint: category.kind.accent)
+                ProgressBar(progress: category.used, tint: category.kind.accent)
             }
         }
         .padding(16)
@@ -125,7 +125,7 @@ struct BudgetCard: View {
 
 
 struct ProgressBar: View {
-    let progress: Double   // 0...1
+    let progress: Double   // 0...100
     let tint: Color
 
     var body: some View {
@@ -134,7 +134,7 @@ struct ProgressBar: View {
                 Capsule().fill(Color.gray.opacity(0.22))
                 Capsule()
                     .fill(tint)
-                    .frame(width: max(8, CGFloat(progress) * geo.size.width))
+                    .frame(width: max(8, CGFloat(progress / 100) * geo.size.width))
             }
         }
         .frame(height: 14)
@@ -142,7 +142,7 @@ struct ProgressBar: View {
 }
 
 struct UsedPill: View {
-    let usedPercent: Double      // 0...1
+    let usedPercent: Double      // 0...100
     let reportKind: ReportsKind? //  ReportsView only
 
     init(usedPercent: Double, kind: ReportsKind? = nil) {

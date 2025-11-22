@@ -9,7 +9,7 @@ struct SavingsView: View {
         
         let savingsBudget = income * savingsPercent
         
-        return sessionManager.savingsList.map { saving in
+        return sessionManager.monthlySavingsList.map { saving in
             let percentOfBudget = saving.cost / savingsBudget
             let dateFormatter = ISO8601DateFormatter()
             

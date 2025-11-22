@@ -46,9 +46,12 @@ class SessionManager: ObservableObject {
     @Published var wants: Double = 0
     @Published var savings: Double = 0
     
-    @Published var needsList: [ExpenditureItem] = []
-    @Published var wantsList: [ExpenditureItem] = []
-    @Published var savingsList: [ExpenditureItem] = []
+    @Published var monthlyNeedsList: [ExpenditureItem] = []
+    @Published var monthlyWantsList: [ExpenditureItem] = []
+    @Published var monthlySavingsList: [ExpenditureItem] = []
+    @Published var yearlyNeedsList: [ExpenditureItem] = []
+    @Published var yearlyWantsList: [ExpenditureItem] = []
+    @Published var yearlySavingsList: [ExpenditureItem] = []
 
     func signIn(id: UUID) {
         self.userId = id
@@ -188,9 +191,12 @@ class SessionManager: ObservableObject {
     }
     
     func fetchAllExpenditures() async {
-        self.needsList = await fetchExpenditures(from: "needs")
-        self.wantsList = await fetchExpenditures(from: "wants")
-        self.savingsList = await fetchExpenditures(from: "savings")
+        self.monthlyNeedsList = await fetchExpenditures(from: "monthly_needs")
+        self.monthlyWantsList = await fetchExpenditures(from: "monthly_wants")
+        self.monthlySavingsList = await fetchExpenditures(from: "monthly_savings")
+        self.yearlyNeedsList = await fetchExpenditures(from: "yearly_needs")
+        self.yearlyWantsList = await fetchExpenditures(from: "yearly_wants")
+        self.yearlySavingsList = await fetchExpenditures(from: "yearly_savings")
     }
     
     static var preview: SessionManager {

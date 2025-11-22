@@ -9,7 +9,7 @@ struct WantsView: View {
         
         let wantsBudget = income * wantsPercent
         
-        return sessionManager.wantsList.map { want in
+        return sessionManager.monthlyWantsList.map { want in
             let percentOfBudget = want.cost / wantsBudget
             let dateFormatter = ISO8601DateFormatter()
             

@@ -5,15 +5,15 @@ struct MainView: View {
     @EnvironmentObject var sessionManager: SessionManager
     
     var totalNeeds: Double {
-        sessionManager.needsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost }
     }
 
     var totalWants: Double {
-        sessionManager.wantsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost }
     }
 
     var totalSavings: Double {
-        sessionManager.savingsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
     }
     var budgeted: Double {
         sessionManager.budgeted
