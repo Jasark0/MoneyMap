@@ -3,10 +3,10 @@ import Charts
 
 struct YearlyView: View {
     @EnvironmentObject var sessionManager: SessionManager
+    
     @Environment(\.dismiss) private var goback
     
     private let savedThisYear: Double = 7_560
-
  
     private let H1_wants:   [Double] = [70, 65, 90, 80, 66, 15]
     private let H1_needs:   [Double] = [115, 100, 140, 170, 135, 100]

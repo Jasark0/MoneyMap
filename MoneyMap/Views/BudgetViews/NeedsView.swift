@@ -11,14 +11,15 @@ struct NeedsView: View {
         
         return sessionManager.monthlyNeedsList.map { need in
             let percentOfBudget = need.cost / needsBudget
-            let dateFormatter = ISO8601DateFormatter()
-            
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
             return BudgetCardModel(
                 title: need.title,
                 amount: need.cost,
                 percentOfBudget: percentOfBudget,
                 description: need.description ?? "",
-                created_at: dateFormatter.date(from: need.created_at ?? "") ?? Date()
+                created_at: isoFormatter.date(from: need.created_at ?? "") ?? Date()
             )
         }
     }

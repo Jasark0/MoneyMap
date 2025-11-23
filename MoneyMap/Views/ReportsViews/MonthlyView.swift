@@ -3,27 +3,33 @@ import SwiftUI
 struct MonthlyView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var goback
-
-    private func buildReportItems(from list: [ExpenditureItem], kind: BudgetKind) -> [ReportLineItem] {
-        let iso = ISO8601DateFormatter()
-        
-        return list.compactMap { item in
-            ReportLineItem(
-                title: item.title,
-                amount: item.cost,
-                percentage: 0, // you compute this elsewhere if needed
-                kind: kind,
-                description: item.description ?? "",
-                date: iso.date(from: item.created_at ?? "") ?? Date()
-            )
-        }
-        .sorted { $0.date < $1.date } // optional: ascending order
+    
+    var budget: Double {
+        sessionManager.budgeted
     }
 
     private var needsItems:   [ReportLineItem] { buildReportItems(from: sessionManager.monthlyNeedsList,   kind: .needs) }
     private var wantsItems:   [ReportLineItem] { buildReportItems(from: sessionManager.monthlyWantsList,   kind: .wants) }
     private var savingsItems: [ReportLineItem] { buildReportItems(from: sessionManager.monthlySavingsList, kind: .savings) }
+    
+    private func buildReportItems(from list: [ExpenditureItem], kind: BudgetKind) -> [ReportLineItem] {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
+        return list.compactMap { item in
+            ReportLineItem(
+                title: item.title,
+                amount: item.cost,
+                percentage: item.cost / budget,
+                kind: kind,
+                description: item.description ?? "",
+                date: iso.date(from: item.created_at ?? "") ?? Date()
+            )
+        }
+        .sorted { $0.date < $1.date }
+    }
+
+    
     var body: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .leading) {
@@ -62,18 +68,10 @@ struct MonthlyView: View {
     }
 }
 
-
-//remove once connected to db
-private func fixedDate(month: Int, day: Int, year: Int? = nil) -> Date {
-    let cal = Calendar.current
-    let y = year ?? cal.component(.year, from: .now)
-    return cal.date(from: DateComponents(year: y, month: month, day: day))!
-}
-
 private struct ReportSection<Destination: View>: View {
     let title: String
     let items: [ReportLineItem]
-    @ViewBuilder var viewAll: () -> Destination   // accepts a destination view
+    @ViewBuilder var viewAll: () -> Destination
 
     var body: some View {
         VStack(spacing: 8) {
@@ -144,22 +142,10 @@ private struct MonthlyLineItemRow: View {
 private extension DateFormatter {
     static let mmdd: DateFormatter = {
         let df = DateFormatter()
-        df.dateFormat = "MM/dd"
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.dateFormat = "MMMM d"
         return df
     }()
-}
-
-private extension View {
-    func appCardStyle() -> some View {
-        self
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.06), radius: 8, y: 2)
-            )
-            .contentShape(Rectangle())
-    }
 }
 
 #Preview {

@@ -135,7 +135,12 @@ struct MainView: View {
                         Text("$\(Int(goal)) monthly goal")
                             .font(.headline)
                         if left > goal {
-                            Text("On track to reach the goal this month")
+                            Text("On track to reach the goal this month!")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        else{
+                            Text("Not on track to reach the goal this month")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }

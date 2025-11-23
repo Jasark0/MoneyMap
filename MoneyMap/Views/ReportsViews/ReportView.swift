@@ -59,7 +59,7 @@ struct ReportView: View {
             
             .init(kind: .goal,
                   progress: goalPercentage,
-                  subtitle: "Met \(Int(goalPercentage))%, Saved \(formatCurrency(saved)) this month!")
+                  subtitle: "Met \(Int(goalPercentage))%, saved \(formatCurrency(saved)) this month!")
         ]
     }
 

@@ -11,14 +11,15 @@ struct SavingsView: View {
         
         return sessionManager.monthlySavingsList.map { saving in
             let percentOfBudget = saving.cost / savingsBudget
-            let dateFormatter = ISO8601DateFormatter()
-            
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
             return BudgetCardModel(
                 title: saving.title,
                 amount: saving.cost,
                 percentOfBudget: percentOfBudget,
                 description: saving.description ?? "",
-                created_at: dateFormatter.date(from: saving.created_at ?? "") ?? Date()
+                created_at: isoFormatter.date(from: saving.created_at ?? "") ?? Date()
             )
         }
     }
