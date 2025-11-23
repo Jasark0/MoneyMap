@@ -6,16 +6,47 @@ struct YearlyView: View {
     
     @Environment(\.dismiss) private var goback
     
-    private let savedThisYear: Double = 7_560
- 
-    private let H1_wants:   [Double] = [70, 65, 90, 80, 66, 15]
-    private let H1_needs:   [Double] = [115, 100, 140, 170, 135, 100]
-    private let H1_savings: [Double] = [130, 120, 190, 200, 225, 190]
+    var salary: Double {
+        sessionManager.budgeted * 12
+    }
+    
+    var savedThisYear: Double {
+        let totalNeeds = sessionManager.yearlyNeedsList.reduce(0) { $0 + $1.cost }
+        let totalWants = sessionManager.yearlyWantsList.reduce(0) { $0 + $1.cost }
+        let totalSavings = sessionManager.yearlySavingsList.reduce(0) { $0 + $1.cost }
+        
+        return salary - (totalNeeds + totalWants + totalSavings)
+    }
 
+    private var monthlyNeeds: [Double] {
+        var arr = Array(repeating: 0.0, count: 12)
+        for item in sessionManager.yearlyNeedsList {
+            if let month = item.monthIndex {
+                arr[month] += item.cost
+            }
+        }
+        return arr
+    }
+    
+    private var monthlyWants: [Double] {
+        var arr = Array(repeating: 0.0, count: 12)
+        for item in sessionManager.yearlyWantsList {
+            if let month = item.monthIndex {
+                arr[month] += item.cost
+            }
+        }
+        return arr
+    }
 
-    private let H2_wants:   [Double] = [5, 25, 12, 18, 22, 28]
-    private let H2_needs:   [Double] = [95, 100, 92, 94, 96, 93]
-    private let H2_savings: [Double] = [165, 180, 150, 158, 185, 190]
+    private var monthlySavings: [Double] {
+        var arr = Array(repeating: 0.0, count: 12)
+        for item in sessionManager.yearlySavingsList {
+            if let month = item.monthIndex {
+                arr[month] += item.cost
+            }
+        }
+        return arr
+    }
 
     private let bannerHeight: CGFloat = 84
 
@@ -52,20 +83,22 @@ struct YearlyView: View {
 
                     YearHeaderCard(amount: savedThisYear)
 
-                    // Jan–Jun
+                    //Jan–Jun
                     HalfYearChartCard(
                         title: "Jan - Jun",
                         months: ["Jan","Feb","Mar","Apr","May","Jun"],
-                        wants: H1_wants,
-                        needs: H1_needs,
-                        savings: H1_savings
+                        wants: Array(monthlyWants[0..<6]),
+                        needs: Array(monthlyNeeds[0..<6]),
+                        savings: Array(monthlySavings[0..<6])
                     )
 
-                    // July–Dec
+                    //Jul–Dec
                     HalfYearChartCard(
                         title: "July - Dec",
                         months: ["Jul","Aug","Sep","Oct","Nov","Dec"],
-                        wants: H2_wants, needs: H2_needs, savings: H2_savings
+                        wants: Array(monthlyWants[6..<12]),
+                        needs: Array(monthlyNeeds[6..<12]),
+                        savings: Array(monthlySavings[6..<12])
                     )
                 }
                 .padding(.horizontal, 16)
@@ -85,7 +118,7 @@ private struct YearHeaderCard: View {
                 .font(.system(size: 44, weight: .bold))
                 .foregroundStyle(.primary)
 
-            Text("Saved this year!")
+            Text("Saved this year so far!")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -234,8 +267,31 @@ private extension Double {
     }
 }
 
+extension ExpenditureItem {
+    var monthIndex: Int? {
+        guard let str = created_at else { return nil }
+        
+        //Try ISO8601 first
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = iso.date(from: str) {
+            return Calendar.current.component(.month, from: date) - 1
+        }
+
+        //Fallback: normal ISO without fractional seconds
+        let isoNoFrac = ISO8601DateFormatter()
+        isoNoFrac.formatOptions = [.withInternetDateTime]
+        if let date = isoNoFrac.date(from: str) {
+            return Calendar.current.component(.month, from: date) - 1
+        }
+        
+        return nil
+    }
+}
+
 
 
 #Preview {
     YearlyView()
+        .environmentObject(SessionManager.preview)
 }

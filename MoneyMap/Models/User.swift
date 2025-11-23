@@ -23,6 +23,7 @@ struct IncomeRecord: Codable {
 }
 
 struct ExpenditureItem: Codable, Identifiable {
+    let expenditure_id: UUID
     let id: UUID?
     let title: String
     let cost: Double
