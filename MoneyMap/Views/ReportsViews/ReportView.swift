@@ -1,24 +1,73 @@
-//
-//  ReportView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct ReportView: View {
+    @EnvironmentObject var sessionManager: SessionManager
     
-    private let cards: [ReportsCardModel] = [
-        .init(kind: .monthly, progress: 0.75, subtitle: "Used: 75%"),
-        .init(kind: .yearly,  progress: 0.10, subtitle: "Used: 10%"),
-        .init(kind: .goal,    progress: 0.90, subtitle: "Met 90%")
-    ]
+    func formatCurrency(_ amount: Double) -> String {
+        let f = NumberFormatter()
+        f.numberStyle = .currency
+        f.maximumFractionDigits = 0  
+        return f.string(from: NSNumber(value: amount)) ?? "$0"
+    }
+    var totalMonthlyExpenditure: Double {
+        sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost } +
+        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost } +
+        sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
+    }
+    
+    var totalYearlyExpenditure :Double {
+        sessionManager.yearlyNeedsList.reduce(0) { $0 + $1.cost } +
+        sessionManager.yearlyWantsList.reduce(0) { $0 + $1.cost } +
+        sessionManager.yearlySavingsList.reduce(0) { $0 + $1.cost }
+    }
+    
+    var budgeted: Double {
+        sessionManager.budgeted
+    }
+    
+    var goal: Double {
+        sessionManager.goal
+    }
+    
+    var monthlyPercentage: Double {
+        totalMonthlyExpenditure / budgeted * 100
+    }
+    
+    var yearlyPercentage: Double {
+        totalYearlyExpenditure / (budgeted * 12) * 100
+    }
+    
+    var goalPercentage: Double {
+        let raw = (budgeted - totalMonthlyExpenditure) / goal * 100
+        return min(max(raw, 0), 100)
+    }
+    
+    var saved: Double {
+        let raw = budgeted - totalMonthlyExpenditure
+        return max(raw, 0)
+    }
+    
+    private var cards: [ReportsCardModel] {
+        [
+            .init(kind: .monthly,
+                  progress: monthlyPercentage,
+                  subtitle: "Used: \(Int(monthlyPercentage))%"),
+            
+            .init(kind: .yearly,
+                  progress: yearlyPercentage,
+                  subtitle: "Used: \(Int(yearlyPercentage))%"),
+            
+            .init(kind: .goal,
+                  progress: goalPercentage,
+                  subtitle: "Met \(Int(goalPercentage))%, saved \(formatCurrency(saved)) this month!")
+        ]
+    }
+
 
     private let bannerHeight: CGFloat = 84
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack {
 
             ZStack(alignment: .leading) {
                 Color("Independence").ignoresSafeArea(edges: .top)
@@ -40,8 +89,8 @@ struct ReportView: View {
                             NavigationLink {
                                 switch card.kind {
                                 case .monthly: MonthlyView()
-                                case .yearly:  YearlyView()
-                                case .goal:    EmptyView() // not used
+                                case .yearly: YearlyView()
+                                case .goal: EmptyView() // not used
                                 }
                             } label: {
                                 ReportCard(card: card, showChevron: true)
@@ -111,12 +160,6 @@ private struct ReportCard: View {
                                 radius: card.kind == .goal && card.progress >= 1.0 ? 12 : 8,
                                 y: card.kind == .goal && card.progress >= 1.0 ? 4 : 2)
                 )
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 16)
-//                        .stroke(card.kind == .goal && card.progress >= 1.0
-//                                ? Color.yellow.opacity(0.8)
-//                                : Color.clear, lineWidth: 2)
-//                )        .contentShape(Rectangle())
         .accessibilityAddTraits(showChevron ? .isButton : [])
     }
 }

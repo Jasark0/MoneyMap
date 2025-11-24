@@ -1,19 +1,35 @@
-//
-//  BudgetView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct BudgetView: View {
-    //temp variables - replace with user data soon
-    private let categories: [BudgetCategory] = [
-        .init(kind: .needs,   percentBudgeted: 0.50, used: 0.20),
-        .init(kind: .wants,   percentBudgeted: 0.30, used: 0.30),
-        .init(kind: .savings, percentBudgeted: 0.20, used: 0.90)
-    ]
+    @EnvironmentObject var sessionManager: SessionManager
+    
+    func usedPercent(totalSpent: Double, percentBudgeted: Double) -> Double {
+        let budget = sessionManager.budgeted * percentBudgeted / 100
+        guard budget > 0 else { return 0 }
+        
+        return (totalSpent / budget) * 100
+    }
+    
+    var totalNeeds: Double {
+        sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost }
+    }
+
+    var totalWants: Double {
+        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost }
+    }
+
+    var totalSavings: Double {
+        sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
+    }
+    
+    var categories: [BudgetCategory] {
+        [
+            .init(kind: .needs,   percentBudgeted: sessionManager.needs,   used: usedPercent(totalSpent: totalNeeds, percentBudgeted: sessionManager.needs)),
+            .init(kind: .wants,   percentBudgeted: sessionManager.wants,   used: usedPercent(totalSpent: totalWants, percentBudgeted: sessionManager.wants)),
+            .init(kind: .savings, percentBudgeted: sessionManager.savings, used: usedPercent(totalSpent: totalSavings, percentBudgeted: sessionManager.savings))
+        ]
+    }
+
     
     private let bannerHeight: CGFloat = 84
 
@@ -53,7 +69,7 @@ struct BudgetView: View {
                  .padding(.bottom, 24)
              }
          }
-         .toolbar(.hidden, for: .navigationBar) // custom banner 
+         .toolbar(.hidden, for: .navigationBar) // custom banner
      }
  }
 
@@ -73,7 +89,7 @@ struct BudgetCard: View {
                         .font(.system(.title3, weight: .semibold))
                         .foregroundStyle(.primary)
 
-                    Text("\(Int(category.percentBudgeted * 100))% budgeted")
+                    Text("\(Int(category.percentBudgeted))% budgeted")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -109,7 +125,7 @@ struct BudgetCard: View {
 
 
 struct ProgressBar: View {
-    let progress: Double   // 0...1
+    let progress: Double   // 0...100
     let tint: Color
 
     var body: some View {
@@ -118,7 +134,7 @@ struct ProgressBar: View {
                 Capsule().fill(Color.gray.opacity(0.22))
                 Capsule()
                     .fill(tint)
-                    .frame(width: max(8, CGFloat(progress) * geo.size.width))
+                    .frame(width: max(8, CGFloat(progress / 100) * geo.size.width))
             }
         }
         .frame(height: 14)
@@ -126,7 +142,7 @@ struct ProgressBar: View {
 }
 
 struct UsedPill: View {
-    let usedPercent: Double      // 0...1
+    let usedPercent: Double      // 0...100
     let reportKind: ReportsKind? //  ReportsView only
 
     init(usedPercent: Double, kind: ReportsKind? = nil) {
@@ -139,14 +155,14 @@ struct UsedPill: View {
         let textLabel = isGoal ? "Met" : "Used"
         let color: Color = isGoal
             ? .green
-            : (usedPercent < 0.5 ? .green :
-               (usedPercent < 0.8 ? .yellow : .red))
+            : (usedPercent < 50 ? .green :
+               (usedPercent < 80 ? .yellow : .red))
 
         HStack(spacing: 6) {
             Circle()
                 .fill(color)
                 .frame(width: 8, height: 8)
-            Text("\(textLabel): \(Int(usedPercent * 100))%")
+            Text("\(textLabel): \(Int(usedPercent))%")
                 .font(.footnote)
                 .fontWeight(.semibold)
         }
@@ -156,9 +172,6 @@ struct UsedPill: View {
         .foregroundStyle(.white)
     }
 }
-
-
-
 
 #Preview {
     NavigationStack {

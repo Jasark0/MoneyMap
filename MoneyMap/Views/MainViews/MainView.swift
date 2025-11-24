@@ -4,26 +4,65 @@ import Charts
 struct MainView: View {
     @EnvironmentObject var sessionManager: SessionManager
     
-    let budgeted: Double = 5000
-    let left: Double = 1000
-    let monthlyGoal: Double = 500
+    var totalNeeds: Double {
+        sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost }
+    }
+
+    var totalWants: Double {
+        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost }
+    }
+
+    var totalSavings: Double {
+        sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
+    }
+    var budgeted: Double {
+        sessionManager.budgeted
+    }
+    var left: Double {
+        budgeted - (totalNeeds + totalWants + totalSavings)
+    }
+    var needs: Double {
+        sessionManager.needs
+    }
+    var wants: Double {
+        sessionManager.wants
+    }
+    var savings: Double {
+        sessionManager.savings
+    }
+    var goal: Double {
+        sessionManager.goal
+    }
     
-    //Base color set
     let baseColors: [Color] = [
         Color("Royal Blue"),
         Color("Wild Blue Yonder"),
         Color("Independence")
     ]
     
-    //Budgeted data percentages
-    let pieData: [(category: String, percent: Double)] = [
-        ("Needs", 50),
-        ("Wants", 30),
-        ("Savings", 20)
-    ]
+    var pieData: [(category: String, percent: Double)] {
+        [
+            ("Needs", needs),
+            ("Wants", wants),
+            ("Savings", savings)
+        ]
+    }
     
-    //Actual usage multipliers
-    let usageMultipliers: [Double] = [0.9, 0.1, 0.6]
+    var needsPercent: Double {
+        guard budgeted * needs / 100 != 0 else { return 0 }
+        return totalNeeds / (budgeted * needs / 100)
+    }
+    var wantsPercent: Double {
+        guard budgeted * wants / 100 != 0 else { return 0 }
+        return totalWants / (budgeted * wants / 100)
+    }
+    var savingsPercent: Double {
+        guard budgeted * savings / 100 != 0 else { return 0 }
+        return totalSavings / (budgeted * savings / 100)
+    }
+    var usageMultipliers: [Double] {
+        [needsPercent, wantsPercent, savingsPercent]
+    }
     
     var body: some View {
         NavigationStack {
@@ -39,7 +78,6 @@ struct MainView: View {
                                 .fontWeight(.bold)
                         }
                         else {
-                            ProgressView()
                             Text("Loading profile...")
                                 .foregroundColor(.gray)
                         }
@@ -53,7 +91,7 @@ struct MainView: View {
                     .padding(.horizontal)
                 
                     VStack(spacing: 5) {
-                        Text("$\(Int(budgeted)) budgeted this month")
+                        Text("$\(Int(budgeted)) budgeted this month" )
                             .font(.headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
@@ -94,11 +132,18 @@ struct MainView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("$\(Int(monthlyGoal)) monthly goal")
+                        Text("$\(Int(goal)) monthly goal")
                             .font(.headline)
-                        Text("On track to reach the goal this month")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                        if left > goal {
+                            Text("On track to reach the goal this month!")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        else{
+                            Text("Not on track to reach the goal this month")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)

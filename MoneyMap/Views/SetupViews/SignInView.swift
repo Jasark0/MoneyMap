@@ -8,6 +8,7 @@ struct SignInView: View {
     @State private var password = ""
     
     @State private var errorMessage: String? = nil
+    @State private var navigateToMain = false
 
     struct Profile: Decodable {
         let id: UUID
@@ -30,12 +31,12 @@ struct SignInView: View {
                 return emailProfile.email
             }
             else {
-                print("No email found for this ID")
+                errorMessage = "Username not found!"
                 return nil
             }
         }
         catch {
-            print("Error fetching email: \(error)")
+            errorMessage = "Username not found!"
             return nil
         }
     }
@@ -59,18 +60,19 @@ struct SignInView: View {
                     )
                     
                     sessionManager.signIn(id: profile.id)
-
+                    
+                    navigateToMain = true
                 }
                 else {
-                    print("Could not retrieve email for user.")
+                    errorMessage = "Incorrect username/password!"
                 }
             }
             else {
-                print("No profile found for username \(username)")
+                errorMessage = "Incorrect username/password!"
             }
         }
         catch {
-            print("Error during sign-in: \(error)")
+            errorMessage = "Incorrect username/password!"
         }
     }
 
@@ -136,6 +138,9 @@ struct SignInView: View {
                 }
             }
             .padding(.top, 15)
+            .navigationDestination(isPresented: $navigateToMain) {
+                MainShellView()
+            }
         }
         .navigationBarBackButtonHidden(true)
     }

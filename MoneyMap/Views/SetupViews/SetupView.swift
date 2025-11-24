@@ -2,9 +2,10 @@ import SwiftUI
 import Supabase
 
 struct SetupView: View {
+    let userId: UUID
     @EnvironmentObject var sessionManager: SessionManager
     
-    @State private var income: Double = 0
+    @State private var income: Double = 5000
     @State private var goal: Double = 0
     @State private var needs: Double = 50
     @State private var wants: Double = 30
@@ -27,8 +28,15 @@ struct SetupView: View {
         do {
             errorMessage = nil
             
+            let total = needs + wants + savings
+            
+            guard total == 100 else{
+                errorMessage = "Your percentages must add up to 100%!"
+                return
+            }
+            
             let profile = Profile(
-                id: sessionManager.userId!.uuidString,
+                id: userId.uuidString,
                 income: income,
                 goal: goal,
                 needs: needs,
@@ -40,6 +48,8 @@ struct SetupView: View {
                 .from("income")
                 .insert(profile)
                 .execute()
+            
+            sessionManager.signIn(id: userId)
             
             navigateToMain = true
         }
@@ -97,7 +107,7 @@ struct SetupView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .navigationDestination(isPresented: $navigateToMain) {
-                    MainView()
+                    MainShellView()
                 }
             }
         }
@@ -107,8 +117,8 @@ struct SetupView: View {
 
 #Preview {
     NavigationStack {
-        SetupView()
+        SetupView(userId: UUID())
+            .environmentObject(SessionManager.preview)
     }
-    .environmentObject(SessionManager.preview)
 }
 

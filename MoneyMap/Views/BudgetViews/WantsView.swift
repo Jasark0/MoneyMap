@@ -1,20 +1,29 @@
-//
-//  WantsView.swift
-//  MoneyMap
-//
-//  Created by user279040 on 10/6/25.
-//
-
 import SwiftUI
 
 struct WantsView: View {
-    // dummy data
-    private let items: [BudgetCardModel] = [
-        .init(title: "labubu", amount: 29.99, percentOfBudget: 0.04, description: "Labububububu"),
-        .init(title: "lightning mcqueen", amount: 19.99, percentOfBudget: 0.03, description: "Lightning Mcqueen Mcqueen"),
-        .init(title: "coffee machine", amount: 150.00, percentOfBudget: 0.25, description: "no more coffee runs")
-    ]
+    @EnvironmentObject var sessionManager: SessionManager
+    
+    private var items: [BudgetCardModel] {
+        let income = sessionManager.budgeted
+        let wantsPercent = sessionManager.wants / 100
+        
+        let wantsBudget = income * wantsPercent
+        
+        return sessionManager.monthlyWantsList.map { want in
+            let percentOfBudget = want.cost / wantsBudget
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
+            return BudgetCardModel(
+                title: want.title,
+                amount: want.cost,
+                percentOfBudget: percentOfBudget,
+                description: want.description ?? "",
+                created_at: isoFormatter.date(from: want.created_at ?? "") ?? Date()
+            )
+        }
+    }
+    
     private let bannerHeight: CGFloat = 84
 
     var body: some View {
@@ -72,7 +81,13 @@ private struct DetailBanner: View {
 //card
 private struct LineItemCard: View {
     let item: BudgetCardModel
-
+    
+    let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "MMMM d, yyyy"
+        return df
+    }()
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("\(item.title) – \(currency(item.amount)) (\(percent(item.percentOfBudget)))")
@@ -83,9 +98,18 @@ private struct LineItemCard: View {
                 .frame(height: 1)
                 .overlay(Color.black.opacity(0.08))
 
-            Text("Desc: \(item.description)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            HStack {
+                if !item.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("Desc: \(item.description)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+                
+                Text(dateFormatter.string(from: item.created_at))
+                    .font(.subheadline)
+            }
         }
         .padding(16)
         .background(

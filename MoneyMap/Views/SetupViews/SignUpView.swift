@@ -4,6 +4,7 @@ import Supabase
 struct SignUpView: View{
     @EnvironmentObject var sessionManager: SessionManager
     
+    @State private var userId: UUID? = nil
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var username = ""
@@ -23,46 +24,82 @@ struct SignUpView: View{
         let last_name: String
     }
     
-    func signUp() async {        
-        do{
-            errorMessage = nil
+    struct UsernameCheck: Decodable {
+        let id: String
+    }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+        let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
+    }
+    
+    func signUp() async {
+        guard isValidEmail(email) else {
+            errorMessage = "Invalid email format."
+            return
+        }
+        
+        guard username.count >= 6 else {
+            errorMessage = "Username must be at least 6 characters."
+            return
+        }
+        
+        guard password.count >= 8 else {
+            errorMessage = "Password must be at least 8 characters."
+            return
+        }
+        
+        do {
+            do {
+                let usernameResult: [UsernameCheck] = try await supabase
+                    .from("profiles")
+                    .select("id")
+                    .eq("username", value: username)
+                    .execute()
+                    .value
+                
+                if !usernameResult.isEmpty {
+                    errorMessage = "Username already exists!"
+                    return
+                }
+            } catch {
+                errorMessage = "Failed to check username availability."
+                return
+            }
+
             
             let response = try await supabase.auth.signUp(email: email, password: password)
-            let userId = response.user.id
             
-            sessionManager.signIn(id: userId)
+            let newUser = response.user
+            userId = newUser.id
             
             let profile = Profile(
-                id: userId.uuidString,
+                id: newUser.id.uuidString,
                 username: username,
                 first_name: firstName,
                 last_name: lastName
             )
             
-            try await supabase
-                .from("profiles")
-                .insert(profile)
-                .execute()
-    
-            navigateToSetup = true
-        }
-        catch{
-            let errStr = error.localizedDescription.lowercased()
+            do {
+                try await supabase
+                    .from("profiles")
+                    .insert(profile)
+                    .execute()
+                
+                sessionManager.userId = newUser.id
+                
+                navigateToSetup = true
+                
+            } catch {
+                print("Profile insert error:", error)
+                errorMessage = " Username already exists!"
+            }
             
-            if errStr.contains("duplicate"){
-                if (errStr.contains("profiles_pkey")){
-                    errorMessage = "Email already exists."
-                }
-                else if(errStr.contains("profiles_username_key")){
-                    errorMessage = "Username already exists."
-                }
-            }
-            else {
-                errorMessage = error.localizedDescription
-            }
+        }
+        catch {
+            errorMessage = "Email already exists!"
         }
     }
-
 
     var body: some View{
         NavigationStack{
@@ -124,7 +161,10 @@ struct SignUpView: View{
                     }
                     .frame(maxWidth: .infinity)
                     .navigationDestination(isPresented: $navigateToSetup) {
-                        SetupView()
+                        if let id = userId {
+                            SetupView(userId: id)
+                                .environmentObject(sessionManager)
+                        }
                     }
                 }
             }
