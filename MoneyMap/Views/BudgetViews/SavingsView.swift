@@ -1,26 +1,17 @@
 import SwiftUI
+import Supabase
 
 struct SavingsView: View {
     @EnvironmentObject var sessionManager: SessionManager
     
-    private var items: [BudgetCardModel] {
+    private var items: [ExpenditureItemWrapper] {
         let income = sessionManager.budgeted
         let savingsPercent = sessionManager.savings / 100
-        
         let savingsBudget = income * savingsPercent
         
-        return sessionManager.monthlySavingsList.map { saving in
-            let percentOfBudget = saving.cost / savingsBudget
-            let isoFormatter = ISO8601DateFormatter()
-            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-            return BudgetCardModel(
-                title: saving.title,
-                amount: saving.cost,
-                percentOfBudget: percentOfBudget,
-                description: saving.description ?? "",
-                created_at: isoFormatter.date(from: saving.created_at ?? "") ?? Date()
-            )
+        return sessionManager.monthlySavingsList.map { item in
+            let percentOfBudget = item.cost / savingsBudget
+            return ExpenditureItemWrapper(item: item, percentOfBudget: percentOfBudget)
         }
     }
 
@@ -29,10 +20,13 @@ struct SavingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             DetailBanner(title: "Savings", height: bannerHeight)
+            
             ScrollView {
                 VStack(spacing: 16) {
-                    ForEach(items) { item in
-                        LineItemCard(item: item)
+                    ForEach(items) { wrapper in
+                        LineItemCard(item: wrapper.item, percentOfBudget: wrapper.percentOfBudget) { id in
+                            deleteSaving(id: id)
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -43,9 +37,25 @@ struct SavingsView: View {
         .toolbar(.hidden, for: .navigationBar)
         .background(Color(.systemBackground))
     }
+
+    func deleteSaving(id: UUID) {
+        Task {
+            do {
+                try await supabase
+                    .from("monthly_savings")
+                    .delete()
+                    .eq("expenditure_id", value: id)
+                    .execute()
+                
+                // Refresh session manager data
+                await sessionManager.fetchAllExpenditures()
+            } catch {
+                print("Error deleting expense:", error)
+            }
+        }
+    }
 }
 
-//banner + title
 private struct DetailBanner: View {
     @Environment(\.dismiss) private var goback
     let title: String
@@ -54,7 +64,7 @@ private struct DetailBanner: View {
     var body: some View {
         ZStack {
             Color("Independence").ignoresSafeArea(edges: .top)
-
+            
             HStack(spacing: 12) {
                 Button {
                     goback()
@@ -66,10 +76,11 @@ private struct DetailBanner: View {
                         .background(Color.white.opacity(0.08))
                         .clipShape(Circle())
                 }
+                
                 Text(title)
                     .font(.system(.title3, weight: .semibold))
                     .foregroundColor(.white)
-
+                
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -78,37 +89,64 @@ private struct DetailBanner: View {
     }
 }
 
-//card
 private struct LineItemCard: View {
-    let item: BudgetCardModel
-
-    let dateFormatter: DateFormatter = {
+    let item: ExpenditureItem
+    let percentOfBudget: Double
+    let onDelete: (UUID) -> Void
+    
+    @State private var showDeleteConfirmation = false
+    
+    private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "MMMM d, yyyy"
         return df
     }()
     
+    private var formattedDate: String? {
+        guard let createdAtStr = item.created_at else { return nil }
+        
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        if let date = isoFormatter.date(from: createdAtStr) {
+            return dateFormatter.string(from: date)
+        }
+        return nil
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("\(item.title) – \(currency(item.amount)) (\(percent(item.percentOfBudget)))")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.primary)
-
-            Divider()
-                .frame(height: 1)
-                .overlay(Color.black.opacity(0.08))
-
             HStack {
-                if !item.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text("Desc: \(item.description)")
+                Text("\(item.title) – \(currency(item.cost)) (\(percent(percentOfBudget)))")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+                
+                Button {
+                    showDeleteConfirmation = true
+                } label: {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                }
+            }
+            
+            Divider()
+                .overlay(Color.black.opacity(0.08))
+            
+            HStack {
+                if let desc = item.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("Desc: \(desc)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-
+                
                 Spacer()
                 
-                Text(dateFormatter.string(from: item.created_at))
-                    .font(.subheadline)
+                if let dateText = formattedDate {
+                    Text(dateText)
+                        .font(.subheadline)
+                }
             }
         }
         .padding(16)
@@ -121,6 +159,16 @@ private struct LineItemCard: View {
                 )
                 .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
         )
+        .confirmationDialog(
+            "Delete this item?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                onDelete(item.expenditure_id)
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 
     private func currency(_ value: Double) -> String {
@@ -131,12 +179,11 @@ private struct LineItemCard: View {
     }
 
     private func percent(_ value: Double) -> String {
-        // convert to precent
-        let p = Int(round(value * 100))
-        return "\(p)%"
+        "\(Int(round(value * 100)))%"
     }
 }
 
 #Preview {
     SavingsView()
+        .environmentObject(SessionManager.preview)
 }

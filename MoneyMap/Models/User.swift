@@ -31,6 +31,12 @@ struct ExpenditureItem: Codable, Identifiable {
     let created_at: String?
 }
 
+struct ExpenditureItemWrapper: Identifiable {
+    var id: UUID { item.expenditure_id }
+    let item: ExpenditureItem
+    let percentOfBudget: Double
+}
+
 @MainActor
 class SessionManager: ObservableObject {
     @Published var userId: UUID? = nil
