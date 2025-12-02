@@ -108,7 +108,10 @@ struct BudgetCard: View {
 
             // pill + progress
             HStack(spacing: 12) {
-                UsedPill(usedPercent: category.used)
+                UsedPill(
+                        usedPercent: category.used,
+                        isSavingsCategory: category.kind == .savings
+                    )
 
                 let clamped = min(max(category.used, 0), 100)
                 ProgressBar(progress: category.used, tint: category.kind.accent)
@@ -146,22 +149,36 @@ struct ProgressBar: View {
     }
 }
 
-struct UsedPill: View {
-    let usedPercent: Double      // 0...100+ (may be >100 for displayed text)
-    let reportKind: ReportsKind? // ReportsView only
 
-    init(usedPercent: Double, kind: ReportsKind? = nil) {
+struct UsedPill: View {
+    let usedPercent: Double
+    let reportKind: ReportsKind?
+    let isSavingsCategory: Bool
+
+    init(
+        usedPercent: Double,
+        kind: ReportsKind? = nil,
+        isSavingsCategory: Bool = false
+    ) {
         self.usedPercent = usedPercent
         self.reportKind = kind
+        self.isSavingsCategory = isSavingsCategory
     }
 
     var body: some View {
-        let isGoal = (reportKind == .goal)
-        let textLabel = isGoal ? "Goal" : "Used"
+        let isGoalLike = (reportKind == .goal) || isSavingsCategory
+
+        let textLabel: String = {
+            if reportKind == .goal { return "Goal" }
+            if isSavingsCategory   { return "Saved" }
+            return "Used"
+        }()
+
         let clamped = min(max(usedPercent, 0), 100)
 
         let color: Color = {
-            if isGoal {
+            if isGoalLike {
+                // inverse logic bc you can never save too much
                 if clamped < 20 {
                     return .red
                 } else if clamped < 100 {
@@ -170,6 +187,7 @@ struct UsedPill: View {
                     return .green
                 }
             } else {
+                // normal spending logic
                 if clamped < 50 {
                     return .green
                 } else if clamped < 80 {

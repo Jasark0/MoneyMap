@@ -33,6 +33,14 @@ struct MainView: View {
     var goal: Double {
         sessionManager.goal
     }
+    var goalProgressPercent: Double {
+        guard goal > 0 else { return 0 }
+        return ((left + totalSavings) / goal) * 100
+    }
+    var totalSpent: Double {
+        totalNeeds + totalWants + totalSavings
+    }
+
     
     let baseColors: [Color] = [
         Color("Royal Blue"),
@@ -47,6 +55,7 @@ struct MainView: View {
             ("Savings", savings)
         ]
     }
+    
     
     var needsPercent: Double {
         guard budgeted * needs / 100 != 0 else { return 0 }
@@ -108,7 +117,7 @@ struct MainView: View {
                         
                         Spacer()
                         
-                        Text("Budgets used")
+                        Text("Budgets used within each bucket:")
                             .font(.caption)
                             .padding(.horizontal)
 
@@ -131,22 +140,28 @@ struct MainView: View {
                             .padding(.vertical, 4)
                     }
                     
+                    
                     VStack(alignment: .leading, spacing: 5) {
                         Text("$\(Int(goal)) monthly goal")
                             .font(.headline)
-                        if left > goal {
-                            Text("On track to reach the goal this month!")
+
+                        if goal <= 0 {
+                            Text("Set a monthly goal in Settings to start tracking your savings.")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
-                        }
-                        else{
-                            Text("Not on track to reach the goal this month")
+                        } else if left >= goal {
+                            Text("Congrats you met your goal this month!")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        } else {
+                            Text("Saved \(Int(goalProgressPercent))% of your goal so far.")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
+
                     
                     NavigationLink(destination: ExpenditureView()) {
                         Text("Add Expenditure")

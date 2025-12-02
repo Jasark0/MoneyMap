@@ -9,7 +9,8 @@ struct ContentView: View {
             if sessionManager.isLoggedIn {
                 MainShellView()
             } else {
-                GetStartedView()
+                //GetStartedView()
+                SplashView()
             }
         }
         .onAppear {

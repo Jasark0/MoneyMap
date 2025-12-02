@@ -17,11 +17,32 @@ struct ExpenditureView: View {
     @State private var description: String = ""
     
     @State private var errorMessage: String? = nil
-    
     @State private var navigateToMain = false
     @State private var isLoading = false
     
+    // MARK: - Warning types
+    
+    private enum ExpenditureWarning: Identifiable {
+        case overspend
+        case goal
+        
+        var id: Int {
+            switch self {
+            case .overspend: return 0
+            case .goal:      return 1
+            }
+        }
+    }
+    
+    @State private var activeWarning: ExpenditureWarning? = nil
+    
+    /// Show a warning when the *post-purchase* usage for the selected category
+    /// is at or above this percentage of the allocated budget.
+    private let overspendThreshold: Double = 95.0   // tweak to 90 if you prefer
+    
     let expenditureTypes = ["Needs", "Wants", "Savings"]
+    
+    // MARK: - Supabase insert
     
     private func addExpenditure() async -> Bool {
         guard let userId = sessionManager.userId else {
@@ -49,39 +70,96 @@ struct ExpenditureView: View {
         do {
             switch selectedType {
             case "Needs":
-                try await supabase
-                    .from("needs")
-                    .insert(payload)
-                    .execute()
-                
+                try await supabase.from("needs").insert(payload).execute()
             case "Wants":
-                try await supabase
-                    .from("wants")
-                    .insert(payload)
-                    .execute()
-                
+                try await supabase.from("wants").insert(payload).execute()
             case "Savings":
-                try await supabase
-                    .from("savings")
-                    .insert(payload)
-                    .execute()
-                
+                try await supabase.from("savings").insert(payload).execute()
             default:
                 return false
             }
             
             return true
-            
         } catch {
             errorMessage = "Missing fields!"
             return false
         }
     }
     
+    private func willBreakGoal() -> Bool {
+        // 1) Spending *into* Savings should never hurt the goal
+        if selectedType == "Savings" {
+            return false
+        }
+        
+        let goal = sessionManager.goal
+        guard goal > 0 else { return false }
+        
+        // 2) If we've already met the goal in Savings, do NOT warn anymore
+        let totalSavings = sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
+        if totalSavings >= goal {
+            return false
+        }
+        
+        // 3) Otherwise, use leftover-income logic:
+        //    If this purchase makes it impossible to save up to `goal`,
+        //    show the warning.
+        let totalBefore =
+            sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost } +
+            sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost } +
+            sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
+        
+        let leftoverBefore = sessionManager.budgeted - totalBefore
+        let leftoverAfter  = leftoverBefore - amount
+        
+        // We were okay before; this purchase pushes us below the goal
+        return leftoverBefore >= goal && leftoverAfter < goal
+    }
+
     
+
+    private func projectedCategoryUsage() -> Double? {
+        guard let selectedType = selectedType else { return nil }
+        
+        let percentBudgeted: Double
+        let currentSpent: Double
+        
+        switch selectedType {
+        case "Needs":
+            percentBudgeted = sessionManager.needs
+            currentSpent = sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost }
+        case "Wants":
+            percentBudgeted = sessionManager.wants
+            currentSpent = sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost }
+        case "Savings":
+            return nil
+        default:
+            return nil
+        }
+        
+        let income = sessionManager.budgeted
+        let categoryBudget = income * percentBudgeted / 100.0
+        
+        guard categoryBudget > 0 else { return nil }
+        
+        let totalAfter = currentSpent + amount
+        return (totalAfter / categoryBudget) * 100.0
+    }
+    
+    private func performSubmission() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        if await addExpenditure() {
+            await sessionManager.fetchAllExpenditures()
+            navigateToMain = true
+        }
+    }
+    
+
     var body: some View {
         NavigationStack {
-            ZStack{
+            ZStack {
                 ScrollView {
                     VStack(spacing: 8) {
                         Text("Add an expenditure")
@@ -128,17 +206,37 @@ struct ExpenditureView: View {
                         
                         Button(action: {
                             Task {
-                                //                            if await addExpenditure() {
-                                //                                await sessionManager.fetchAllExpenditures()
-                                //                                navigateToMain = true
-                                //                            }
-                                isLoading = true
-                                defer {isLoading = false}
-                                
-                                if await addExpenditure() {
-                                    await sessionManager.fetchAllExpenditures()
-                                    navigateToMain = true
+                                // Basic validation
+                                guard selectedType != nil else {
+                                    errorMessage = "Select an expenditure type!"
+                                    return
                                 }
+                                
+                                guard !title.isEmpty else {
+                                    errorMessage = "Input an expenditure title!"
+                                    return
+                                }
+                                
+                                guard amount > 0 else {
+                                    errorMessage = "Enter a valid amount!"
+                                    return
+                                }
+                                
+                                // 1) Goal warning first (we’ll refine logic later)
+                                if willBreakGoal() {
+                                    activeWarning = .goal
+                                    return
+                                }
+                                
+                                // 2) Overspending warning: category usage ≥ threshold
+                                if let usage = projectedCategoryUsage(),
+                                   usage >= overspendThreshold {
+                                    activeWarning = .overspend
+                                    return
+                                }
+                                
+                                // 3) No warnings → submit
+                                await performSubmission()
                             }
                         }) {
                             Text("Finish")
@@ -155,12 +253,44 @@ struct ExpenditureView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
+                
                 if isLoading {
-                    LoadingOverlay(message : "Updating your budget...")
+                    LoadingOverlay(message: "Updating your budget...")
                 }
             }
             .navigationDestination(isPresented: $navigateToMain) {
                 MainView()
+            }
+            .alert(item: $activeWarning) { warning in
+                switch warning {
+                case .overspend:
+                    let typeLabel: String
+                    switch selectedType {
+                    case "Needs":   typeLabel = "needs"
+                    case "Wants":   typeLabel = "wants"
+                    case "Savings": typeLabel = "savings"
+                    default:        typeLabel = "this category"
+                    }
+                    
+                    return Alert(
+                        title: Text("You are really close or exceeding the budget for \(typeLabel)!"),
+                        message: Text("Are you sure you want to make this purchase?"),
+                        primaryButton: .default(Text("Yes")) {
+                            Task { await performSubmission() }
+                        },
+                        secondaryButton: .cancel(Text("Cancel Purchase!"))
+                    )
+                    
+                case .goal:
+                    return Alert(
+                        title: Text("You will fail to save your goal amount this month!"),
+                        message: Text("Are you sure you want to make this purchase?"),
+                        primaryButton: .default(Text("Yes")) {
+                            Task { await performSubmission() }
+                        },
+                        secondaryButton: .cancel(Text("Cancel Purchase!"))
+                    )
+                }
             }
         }
     }
