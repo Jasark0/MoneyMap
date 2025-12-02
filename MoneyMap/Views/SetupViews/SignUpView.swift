@@ -16,6 +16,7 @@ struct SignUpView: View{
     @State private var showPasswordWarning = false
     @State private var errorMessage: String? = nil
     @State private var navigateToSetup = false
+    @State private var isSigningUp = false
     
     struct Profile: Encodable {
         let id: String
@@ -48,6 +49,9 @@ struct SignUpView: View{
             errorMessage = "Password must be at least 8 characters."
             return
         }
+        
+        isSigningUp = true
+        defer {isSigningUp = false}
         
         do {
             do {
@@ -167,6 +171,7 @@ struct SignUpView: View{
                         }
                     }
                 }
+                if isSigningUp {LoadingOverlay(message: "Creating your account...")}
             }
             
             HStack{
