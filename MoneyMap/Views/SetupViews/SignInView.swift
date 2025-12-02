@@ -9,6 +9,7 @@ struct SignInView: View {
     
     @State private var errorMessage: String? = nil
     @State private var navigateToMain = false
+    @State private var isSigningIn = false
 
     struct Profile: Decodable {
         let id: UUID
@@ -44,6 +45,8 @@ struct SignInView: View {
     func signIn() async {
         do {
             errorMessage = nil
+            isSigningIn = true
+            defer { isSigningIn = false }
             
             let profiles: [Profile] = try await supabase
                 .from("profiles")
@@ -124,6 +127,9 @@ struct SignInView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
+                }
+                if isSigningIn{
+                    LoadingOverlay(message: "Signing you in...")
                 }
             }
             
