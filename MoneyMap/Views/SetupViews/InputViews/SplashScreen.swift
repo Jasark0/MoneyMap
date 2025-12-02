@@ -25,12 +25,10 @@ struct SplashView: View {
                 .opacity(logoOpacity)
         }
         .onAppear {
-            // Smooth fade-in
             withAnimation(.easeOut(duration: 1)) {
                 logoOpacity = 1.0
             }
             
-            // After a short delay, move to GetStarted
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                 showGetStarted = true
             }
