@@ -108,8 +108,12 @@ struct BudgetCard: View {
 
             // pill + progress
             HStack(spacing: 12) {
-                UsedPill(usedPercent: category.used)
+                UsedPill(
+                        usedPercent: category.used,
+                        isSavingsCategory: category.kind == .savings
+                    )
 
+                let clamped = min(max(category.used, 0), 100)
                 ProgressBar(progress: category.used, tint: category.kind.accent)
             }
         }
@@ -125,38 +129,74 @@ struct BudgetCard: View {
 
 
 struct ProgressBar: View {
-    let progress: Double   // 0...100
+    let progress: Double   // expected 0...100
     let tint: Color
 
     var body: some View {
         GeometryReader { geo in
+            let clamped = min(max(progress, 0), 100.0)
             ZStack(alignment: .leading) {
-                Capsule().fill(Color.gray.opacity(0.22))
+                Capsule()
+                    .fill(Color.gray.opacity(0.22))
                 Capsule()
                     .fill(tint)
-                    .frame(width: max(8, CGFloat(progress / 100) * geo.size.width))
+                    .frame(
+                        width: max(8, CGFloat(clamped / 100) * geo.size.width)
+                    )
             }
         }
         .frame(height: 14)
     }
 }
 
-struct UsedPill: View {
-    let usedPercent: Double      // 0...100
-    let reportKind: ReportsKind? //  ReportsView only
 
-    init(usedPercent: Double, kind: ReportsKind? = nil) {
+struct UsedPill: View {
+    let usedPercent: Double
+    let reportKind: ReportsKind?
+    let isSavingsCategory: Bool
+
+    init(
+        usedPercent: Double,
+        kind: ReportsKind? = nil,
+        isSavingsCategory: Bool = false
+    ) {
         self.usedPercent = usedPercent
         self.reportKind = kind
+        self.isSavingsCategory = isSavingsCategory
     }
 
     var body: some View {
-        let isGoal = (reportKind == .goal)
-        let textLabel = isGoal ? "Met" : "Used"
-        let color: Color = isGoal
-            ? .green
-            : (usedPercent < 50 ? .green :
-               (usedPercent < 80 ? .yellow : .red))
+        let isGoalLike = (reportKind == .goal) || isSavingsCategory
+
+        let textLabel: String = {
+            if reportKind == .goal { return "Goal" }
+            if isSavingsCategory   { return "Saved" }
+            return "Used"
+        }()
+
+        let clamped = min(max(usedPercent, 0), 100)
+
+        let color: Color = {
+            if isGoalLike {
+                // inverse logic bc you can never save too much
+                if clamped < 20 {
+                    return .red
+                } else if clamped < 100 {
+                    return .yellow
+                } else {
+                    return .green
+                }
+            } else {
+                // normal spending logic
+                if clamped < 50 {
+                    return .green
+                } else if clamped < 80 {
+                    return .yellow
+                } else {
+                    return .red
+                }
+            }
+        }()
 
         HStack(spacing: 6) {
             Circle()

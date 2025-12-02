@@ -9,7 +9,7 @@ struct GetStartedView: View {
                 Image("MoneyMapLogo")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 350, height: 350)
+                    .frame(width: 260, height: 260)
                 NavigationLink(destination: SignUpView().environmentObject(sessionManger)){
                     Text("Get Started  >>>")
                         .font(.system(size: 18))

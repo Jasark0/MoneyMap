@@ -11,8 +11,8 @@ struct ReportView: View {
     }
     var totalMonthlyExpenditure: Double {
         sessionManager.monthlyNeedsList.reduce(0) { $0 + $1.cost } +
-        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost } +
-        sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
+        sessionManager.monthlyWantsList.reduce(0) { $0 + $1.cost } 
+        //sessionManager.monthlySavingsList.reduce(0) { $0 + $1.cost }
     }
     
     var totalYearlyExpenditure :Double {
